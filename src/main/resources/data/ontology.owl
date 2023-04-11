@@ -1,0 +1,897 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#"
+     xml:base="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:qrapids-ontology-2="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#">
+    <owl:Ontology rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasCategory -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasCategory">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Category"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasCategoryItem -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasCategoryItem">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Category"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasDataSource -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasDataSource">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasMembership -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasMembership">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Student"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasMetric -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasMetric">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasProject -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasProject">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasQualityFactor -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasQualityFactor">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasStrategicIndicator -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasStrategicIndicator">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasStudent -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#hasStudent">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Student"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedDataSource -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedDataSource">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedMetric -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedMetric">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedMetric"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedProject -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedProject">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedQualityFactor -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#basedQualityFactor">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedQualityFactor"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#parentQualityFactor -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#parentQualityFactor">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedMetric"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#parentStrategicIndicator -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#parentStrategicIndicator">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedQualityFactor"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:assessmentID -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:assessmentID">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:description -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:description">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:name">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:threshold -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categorizedobject:threshold">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#category:name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#category:name">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Category"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categoryitem:color -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categoryitem:color">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categoryitem:type -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categoryitem:type">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categoryitem:upperThreshold -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#categoryitem:upperThreshold">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#datasource:URL -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#datasource:URL">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#membership:username -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#membership:username">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#product:description -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#product:description">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#product:logo -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#product:logo">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#product:name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#product:name">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:assessmentID -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:assessmentID">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:description -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:description">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:logo -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:logo">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#project:name">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#student:name -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#student:name">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Student"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#weightedobject:weight -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#weightedobject:weight">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#float"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Category -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Category"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Student -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Student"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedMetric -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedMetric">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject"/>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedQualityFactor -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedQualityFactor">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GitLabMemb -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GitLabMemb">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryMembership"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GitLabSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GitLabSource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositorySource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GithubMemb -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GithubMemb">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryMembership"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GithubSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GithubSource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositorySource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#JiraMemb -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#JiraMemb">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementMembership"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#JiraSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#JiraSource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementMembership -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementMembership">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementSource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryMembership -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryMembership">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositorySource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositorySource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TaigaMemb -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TaigaMemb">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementMembership"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TaigaSource -->
+
+    <owl:Class rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TaigaSource">
+        <rdfs:subClassOf rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementSource"/>
+    </owl:Class>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Individuals
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#BacklogManagement -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#BacklogManagement">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#FullfilmentOfTasks"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TasksContribution"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#UnassignedTasks"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsContribution -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsContribution">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsManagement -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsManagement">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsTasksRelation -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsTasksRelation">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#FullfilmentOfTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#FullfilmentOfTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#InformationCompleteness -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#InformationCompleteness">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsTasksRelation"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TasksEffortInformation"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#UserStoriesDefinitionQuality"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ModifiedLinesContribution -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ModifiedLinesContribution">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#Product_1 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#Product_1">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+        <qrapids-ontology-2:hasProject rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11b"/>
+        <qrapids-ontology-2:hasProject rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11e"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#Product_2 -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#Product_2">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+        <qrapids-ontology-2:hasProject rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11b"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryContribution -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryContribution">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsContribution"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsManagement"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#CommitsTasksRelation"/>
+        <qrapids-ontology-2:hasQualityFactor rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ModifiedLinesContribution"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TasksContribution -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TasksContribution">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TasksEffortInformation -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TasksEffortInformation">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#UnassignedTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#UnassignedTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#UserStoriesDefinitionQuality -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#UserStoriesDefinitionQuality">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#acceptanceCriteriaApplication -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#acceptanceCriteriaApplication">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexClosedTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexClosedTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexCommits -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexCommits">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexModifiedLines -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexModifiedLines">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#alexTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#anonymousCommits -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#anonymousCommits">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11b -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11b">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <qrapids-ontology-2:hasStrategicIndicator rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#BacklogManagement"/>
+        <qrapids-ontology-2:hasStrategicIndicator rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#InformationCompleteness"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11e -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#asw11e">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+        <qrapids-ontology-2:hasStrategicIndicator rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#BacklogManagement"/>
+        <qrapids-ontology-2:hasStrategicIndicator rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryContribution"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#closedTasksWithActualEffortInformation -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#closedTasksWithActualEffortInformation">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#commitsTasksRelation -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#commitsTasksRelation">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiClosedTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiClosedTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiCommits -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiCommits">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiModifiedLines -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiModifiedLines">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#javiTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#tasksWithEstimatedEffortInformation -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#tasksWithEstimatedEffortInformation">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#unassignedTasks -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#unassignedTasks">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#useOfUserStoryPattern -->
+
+    <owl:NamedIndividual rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#useOfUserStoryPattern">
+        <rdf:type rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+    </owl:NamedIndividual>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // General axioms
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description>
+        <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#AllDisjointClasses"/>
+        <owl:members rdf:parseType="Collection">
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategorizedObject"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Category"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#CategoryItem"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#DataSource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Membership"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Metric"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Project"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#QualityFactor"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#StrategicIndicator"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Student"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedMetric"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedObject"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#WeightedQualityFactor"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GitLabMemb"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GitLabSource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GithubMemb"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#GithubSource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#JiraMemb"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#JiraSource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementMembership"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#ProjectManagementSource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositoryMembership"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#RepositorySource"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TaigaMemb"/>
+            <rdf:Description rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#TaigaSource"/>
+        </owl:members>
+    </rdf:Description>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi -->
+
