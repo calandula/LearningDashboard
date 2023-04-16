@@ -25,8 +25,12 @@ public class JenaConfig {
         return "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                 "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
                 "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
-                "PREFIX qrapids-ontology-2: <http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#>\n" +
-                "PREFIX untitled-ontology-25: <http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#>";
+                "PREFIX qrapids: <http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#>";
+    }
+
+    @Bean
+    public String namespace() {
+        return "http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#";
     }
 
     @Bean

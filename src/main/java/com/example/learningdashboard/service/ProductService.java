@@ -1,21 +1,18 @@
 package com.example.learningdashboard.service;
 
-import com.example.learningdashboard.model.Product;
+import com.example.learningdashboard.dtos.ProductDto;
 import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
-
-    @Autowired
-    private Model ontModel;
 
     @Autowired
     private String prefixes;
@@ -23,67 +20,104 @@ public class ProductService {
     @Autowired
     private Dataset dataset;
 
-    public List<Product> getAllProducts() {
-        List<Product> products = new ArrayList<>();
-        String queryStr = prefixes + "SELECT ?product " +
-                "WHERE { ?product rdf:type qrapids-ontology-2:Product }";
-        Query query = QueryFactory.create(queryStr);
-        dataset.begin(ReadWrite.READ);
-        try (QueryExecution qe = QueryExecutionFactory.create(query, dataset)) {
-            ResultSet results = qe.execSelect();
-            while (results.hasNext()) {
-                QuerySolution solution = results.next();
-                String productId = solution.get("product").asResource().getLocalName();
-                /*String name = solution.get("name").asLiteral().getString();
-                String description = solution.get("description").asLiteral().getString();
-                String projectId = solution.get("project").asResource().getLocalName();*/
-                Product product = new Product(productId, "test", "testing", "testProject");
-                products.add(product);
+    @Autowired
+    private String namespace;
+
+    public ProductDto createProduct(ProductDto product) {
+        String productURI = namespace + product.getName().toLowerCase();
+        Resource productResource = ResourceFactory.createResource(productURI);
+        Resource productClass = ResourceFactory.createResource(namespace + "Product");
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            List<Resource> projectResources = product.getProjectIds().stream()
+                    .map(projectId -> ResourceFactory.createResource(namespace + projectId))
+                    .filter(projectResource -> dataset.getDefaultModel().containsResource(projectResource))
+                    .collect(Collectors.toList());
+            if (projectResources.size() != product.getProjectIds().size()) {
+                throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
             }
+            dataset.getDefaultModel()
+                    .add(productResource, RDF.type, productClass)
+                    .add(productResource, ResourceFactory.createProperty(namespace + "productName"),
+                            ResourceFactory.createPlainLiteral(product.getName()))
+                    .add(productResource, ResourceFactory.createProperty(namespace + "productDescription"),
+                            ResourceFactory.createPlainLiteral(product.getDescription()))
+                    .add(productResource, ResourceFactory.createProperty(namespace + "productLogo"),
+                            ResourceFactory.createPlainLiteral(product.getLogo()));
+
+            projectResources.forEach(projectResource ->
+                    dataset.getDefaultModel().add(productResource,
+                            ResourceFactory.createProperty(namespace + "hasProject"),
+                            projectResource));
+
+            dataset.commit();
+            return null;
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
+
+    public List<ProductDto> getAllProducts() {
+        List<ProductDto> products = new ArrayList<>();
+        dataset.begin(ReadWrite.READ);
+        try {
+            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Product"))
+                    .forEachRemaining(productResource -> {
+                        ProductDto product = new ProductDto();
+                        product.setName(productResource.getProperty(ResourceFactory.createProperty(namespace + "productName")).getString());
+                        product.setDescription(productResource.getProperty(ResourceFactory.createProperty(namespace + "productDescription")).getString());
+                        product.setLogo(productResource.getProperty(ResourceFactory.createProperty(namespace + "productLogo")).getString());
+                        product.setProjectIds((ArrayList<String>) productResource.listProperties(ResourceFactory.createProperty(namespace + "hasProject"))
+                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
+                                .mapWith(Resource::getLocalName).toList());
+                        products.add(product);
+                    });
+
+            dataset.commit();
+            return products;
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
+
+    public ProductDto getProductById(String id) {
+        String productURI = namespace + id.toLowerCase();
+        Resource productResource = ResourceFactory.createResource(productURI);
+        dataset.begin(ReadWrite.READ);
+        try {
+            Model model = dataset.getDefaultModel();
+
+            if (!model.containsResource(productResource)) {
+                return null;
+            }
+
+            String productName = model.getProperty(productResource, model.createProperty(namespace + "productName"))
+                    .getString();
+            String productDescription = model
+                    .getProperty(productResource, model.createProperty(namespace + "productDescription")).getString();
+            String productLogo = model.getProperty(productResource, model.createProperty(namespace + "productLogo"))
+                    .getString();
+            List<String> projectIds = model.listObjectsOfProperty(productResource, model.createProperty(namespace + "isProjectOf"))
+                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
+                    .toList();
+
+            ProductDto product = new ProductDto();
+            product.setName(productName);
+            product.setDescription(productDescription);
+            product.setLogo(productLogo);
+            product.setProjectIds((ArrayList<String>) projectIds);
+            return product;
         } finally {
             dataset.end();
         }
-        return products;
     }
 
-    public Product getProductById(String productId) {
-        String queryStr = prefixes + "SELECT ?name ?description ?project " +
-                "WHERE { myproject:" + productId + " rdf:type myproject:Product . " +
-                "myproject:" + productId + " myproject:name ?name . " +
-                "myproject:" + productId + " myproject:description ?description . " +
-                "myproject:" + productId + " myproject:partOfProject ?project . }";
-        Query query = QueryFactory.create(queryStr);
-        try (QueryExecution qe = QueryExecutionFactory.create(query, ontModel)) {
-            ResultSet results = qe.execSelect();
-            if (results.hasNext()) {
-                QuerySolution solution = results.next();
-                String name = solution.get("name").asLiteral().getString();
-                String description = solution.get("description").asLiteral().getString();
-                String projectId = solution.get("project").asResource().getLocalName();
-                return new Product(productId, name, description, projectId);
-            } else {
-                return null;
-            }
-        }
+    public ProductDto updateProduct(String productId, ProductDto productDto) {
+        return productDto;
     }
 
-    public Product createProduct(Product product) {
-        String productURI = "http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-25#Product_" + product.getProductId();
-        Resource productResource = ResourceFactory.createResource(productURI);
-        Resource productClass = ResourceFactory.createResource("http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#Product");
-        Model model = dataset.getDefaultModel();
-        dataset.begin(ReadWrite.WRITE); // start a transaction
-        try {
-            model.add(productResource, RDF.type, productClass);
-            model.add(productResource, model.createProperty("http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#productName"), ontModel.createTypedLiteral(product.getName()));
-            model.add(productResource, model.createProperty("http://www.semanticweb.org/adria/ontologies/2023/1/qrapids-ontology-2#productDescription"), ontModel.createTypedLiteral(product.getDescription()));
-            // Add any other properties that you need to add here
-            dataset.commit(); // commit the transaction
-        } catch (Exception e) {
-            dataset.abort(); // rollback the transaction
-            throw e;
-        }
-
-        return product;
+    public void deleteProduct(String productId) {
     }
 }
