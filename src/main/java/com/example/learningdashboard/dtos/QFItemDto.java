@@ -11,6 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class QFItemDto {
 
+    private String sourceQF;
+
     private float value;
 
     private float threshold;

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +25,8 @@ public class ProductService {
     private String namespace;
 
     public ProductDto createProduct(ProductDto product) {
-        String productURI = namespace + product.getName().toLowerCase();
+        String productId = UUID.randomUUID().toString();
+        String productURI = namespace + productId;
         Resource productResource = ResourceFactory.createResource(productURI);
         Resource productClass = ResourceFactory.createResource(namespace + "Product");
         dataset.begin(ReadWrite.WRITE);
@@ -32,7 +34,7 @@ public class ProductService {
             List<Resource> projectResources = product.getProjects().stream()
                     .map(projectId -> ResourceFactory.createResource(namespace + projectId))
                     .filter(projectResource -> dataset.getDefaultModel().containsResource(projectResource))
-                    .collect(Collectors.toList());
+                    .toList();
             if (projectResources.size() != product.getProjects().size()) {
                 throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
             }
@@ -83,7 +85,7 @@ public class ProductService {
     }
 
     public ProductDto getProductById(String id) {
-        String productURI = namespace + id.toLowerCase();
+        String productURI = namespace + id;
         Resource productResource = ResourceFactory.createResource(productURI);
         dataset.begin(ReadWrite.READ);
         try {
@@ -99,7 +101,7 @@ public class ProductService {
                     .getProperty(productResource, model.createProperty(namespace + "productDescription")).getString();
             String productLogo = model.getProperty(productResource, model.createProperty(namespace + "productLogo"))
                     .getString();
-            List<String> projectIds = model.listObjectsOfProperty(productResource, model.createProperty(namespace + "isProjectOf"))
+            List<String> projectIds = model.listObjectsOfProperty(productResource, model.createProperty(namespace + "hasProject"))
                     .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
                     .toList();
 

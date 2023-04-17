@@ -11,6 +11,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class SIItemDto {
 
+    private String sourceSI;
+
     private float value;
 
     private float threshold;
