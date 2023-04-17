@@ -1,5 +1,6 @@
 package com.example.learningdashboard.dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,5 +20,5 @@ public class ProductDto {
 
     private String logo;
 
-    private ArrayList<String> projectIds;
+    private ArrayList<String> projects;
 }

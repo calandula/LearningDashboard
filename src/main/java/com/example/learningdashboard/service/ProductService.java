@@ -29,11 +29,11 @@ public class ProductService {
         Resource productClass = ResourceFactory.createResource(namespace + "Product");
         dataset.begin(ReadWrite.WRITE);
         try {
-            List<Resource> projectResources = product.getProjectIds().stream()
+            List<Resource> projectResources = product.getProjects().stream()
                     .map(projectId -> ResourceFactory.createResource(namespace + projectId))
                     .filter(projectResource -> dataset.getDefaultModel().containsResource(projectResource))
                     .collect(Collectors.toList());
-            if (projectResources.size() != product.getProjectIds().size()) {
+            if (projectResources.size() != product.getProjects().size()) {
                 throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
             }
             dataset.getDefaultModel()
@@ -68,7 +68,7 @@ public class ProductService {
                         product.setName(productResource.getProperty(ResourceFactory.createProperty(namespace + "productName")).getString());
                         product.setDescription(productResource.getProperty(ResourceFactory.createProperty(namespace + "productDescription")).getString());
                         product.setLogo(productResource.getProperty(ResourceFactory.createProperty(namespace + "productLogo")).getString());
-                        product.setProjectIds((ArrayList<String>) productResource.listProperties(ResourceFactory.createProperty(namespace + "hasProject"))
+                        product.setProjects((ArrayList<String>) productResource.listProperties(ResourceFactory.createProperty(namespace + "hasProject"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
                         products.add(product);
@@ -107,7 +107,7 @@ public class ProductService {
             product.setName(productName);
             product.setDescription(productDescription);
             product.setLogo(productLogo);
-            product.setProjectIds((ArrayList<String>) projectIds);
+            product.setProjects((ArrayList<String>) projectIds);
             return product;
         } finally {
             dataset.end();
