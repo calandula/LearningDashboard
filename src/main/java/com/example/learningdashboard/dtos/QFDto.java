@@ -19,5 +19,4 @@ public class QFDto {
 
     private String dataSource;
 
-    private ArrayList<String> metrics;
 }

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -18,4 +20,6 @@ public class SIItemDto {
     private float threshold;
 
     private String category;
+
+    private ArrayList<String> qfItems;
 }
