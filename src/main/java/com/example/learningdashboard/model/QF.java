@@ -1,4 +1,4 @@
-package com.example.learningdashboard.model;
+package com.example.learningdashboard.models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,8 +9,12 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryItem {
-    private String type;
-    private String color;
-    private int upperThreshold;
+public class QF {
+
+    private String name;
+
+    private String description;
+
+    private String dataSource;
+
 }

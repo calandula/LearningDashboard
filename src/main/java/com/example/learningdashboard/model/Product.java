@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.jena.rdf.model.Resource;
+
+import java.util.ArrayList;
 
 @Setter
 @Getter
@@ -18,4 +19,5 @@ public class Product {
 
     private String logo;
 
+    private ArrayList<String> projects;
 }

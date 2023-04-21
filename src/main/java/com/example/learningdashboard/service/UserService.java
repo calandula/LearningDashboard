@@ -1,6 +1,9 @@
 package com.example.learningdashboard.service;
 
+import com.example.learningdashboard.dtos.CategoryDto;
 import com.example.learningdashboard.dtos.UserDto;
+import com.example.learningdashboard.repository.CategoryRepository;
+import com.example.learningdashboard.repository.UserRepository;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Resource;
@@ -10,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -17,49 +21,18 @@ import java.util.stream.Collectors;
 public class UserService {
 
     @Autowired
-    private String prefixes;
-
-    @Autowired
-    private Dataset dataset;
-
-    @Autowired
-    private String namespace;
+    private UserRepository userRepository;
 
     public UserDto createUser(UserDto user) {
-        String userId = UUID.randomUUID().toString();
-        String userURI = namespace + userId;
-        Resource userResource = ResourceFactory.createResource(userURI);
-        Resource userClass = ResourceFactory.createResource(namespace + "User");
-        dataset.begin(ReadWrite.WRITE);
-        try {
-            dataset.getDefaultModel()
-                    .add(userResource, RDF.type, userClass)
-                    .add(userResource, ResourceFactory.createProperty(namespace + "userUsername"),
-                            ResourceFactory.createPlainLiteral(user.getUsername()))
-                    .add(userResource, ResourceFactory.createProperty(namespace + "userEmail"),
-                            ResourceFactory.createPlainLiteral(user.getEmail()))
-                    .add(userResource, ResourceFactory.createProperty(namespace + "userAdmin"),
-                            ResourceFactory.createTypedLiteral(user.isAdmin()))
-                    .add(userResource, ResourceFactory.createProperty(namespace + "userSecurityQuestion"),
-                            ResourceFactory.createPlainLiteral(user.getSecurityQuestion()))
-                    .add(userResource, ResourceFactory.createProperty(namespace + "userAnswer"),
-                            ResourceFactory.createPlainLiteral(user.getAnswer()))
-                    .add(userResource, ResourceFactory.createProperty(namespace + "userPassword"),
-                            ResourceFactory.createPlainLiteral(user.getPassword()));
-
-            dataset.commit();
-            return null;
-        } catch (Exception e) {
-            dataset.abort();
-            throw e;
-        }
+        return userRepository.save(user);
     }
 
-    public List<UserDto> getAllUsers() {
-        return null;
+    public List<UserDto> getAllCategories() {
+        return userRepository.findAll();
     }
 
-    public UserDto getUserById(String userId) {
-        return null;
+    public UserDto getCategoryById(String categoryId) {
+        Optional<UserDto> optionalCategory = Optional.ofNullable(userRepository.findById(categoryId));
+        return optionalCategory.orElse(null);
     }
 }

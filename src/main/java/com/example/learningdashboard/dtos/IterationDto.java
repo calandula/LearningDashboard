@@ -16,6 +16,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class IterationDto {
 
+    @NotBlank
     private String name;
 
     private String subject;

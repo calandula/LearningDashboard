@@ -5,12 +5,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryItem {
-    private String type;
-    private String color;
-    private int upperThreshold;
+public class SIItem {
+
+    private String sourceSI;
+
+    private float value;
+
+    private float threshold;
+
+    private String category;
+
+    private ArrayList<String> qfItems;
 }
