@@ -33,4 +33,16 @@ public class ProfileController {
         ProfileDto profile = profileService.getProfileById(profileId);
         return new ResponseEntity<>(profile, HttpStatus.OK);
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<ProfileDto> updateProfile(@PathVariable("id") String profileId, @RequestBody ProfileDto profile) {
+        ProfileDto updatedProfile = profileService.updateProfile(profileId, profile);
+        return new ResponseEntity<>(updatedProfile, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteProfile(@PathVariable("id") String profileId) {
+        profileService.deleteProfile(profileId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

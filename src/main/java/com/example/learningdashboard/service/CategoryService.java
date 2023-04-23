@@ -30,5 +30,12 @@ public class CategoryService {
     public CategoryDto getCategoryByItem(String itemId) {
         return categoryRepository.findByItem(itemId);
     }
+
+    public CategoryDto updateCategory(String categoryId, CategoryDto category) {
+        return category;
+    }
+
+    public void deleteCategory(String categoryId) {
+    }
 }
 

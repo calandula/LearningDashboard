@@ -1,9 +1,7 @@
 package com.example.learningdashboard.controller;
 
 import com.example.learningdashboard.dtos.SIDto;
-import com.example.learningdashboard.dtos.UserDto;
 import com.example.learningdashboard.service.SIService;
-import com.example.learningdashboard.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,5 +32,17 @@ public class SIController {
     public ResponseEntity<SIDto> getSIById(@PathVariable("id") String siId) {
         SIDto si = siService.getSIById(siId);
         return new ResponseEntity<>(si, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteSI(@PathVariable("id") String siId) {
+        siService.deleteSIById(siId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<SIDto> updateSI(@PathVariable("id") String siId, @RequestBody SIDto si) {
+        SIDto updatedSI = siService.updateSIById(siId, si);
+        return new ResponseEntity<>(updatedSI, HttpStatus.OK);
     }
 }

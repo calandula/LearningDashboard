@@ -21,5 +21,7 @@ public class QFItemDto {
 
     private String category;
 
+    private float weight;
+
     private ArrayList<String> metrics;
 }

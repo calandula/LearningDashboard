@@ -1,21 +1,12 @@
 package com.example.learningdashboard.service;
 
-import com.example.learningdashboard.dtos.IterationDto;
 import com.example.learningdashboard.dtos.ProfileDto;
-import com.example.learningdashboard.repository.IterationRepository;
 import com.example.learningdashboard.repository.ProfileRepository;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.ReadWrite;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class ProfileService {
@@ -37,4 +28,10 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
+    public ProfileDto updateProfile(String profileId, ProfileDto profile) {
+        return profile;
+    }
+
+    public void deleteProfile(String profileId) {
+    }
 }

@@ -33,4 +33,16 @@ public class IterationController {
         IterationDto iteration = iterationService.getIterationById(iterationId);
         return new ResponseEntity<>(iteration, HttpStatus.OK);
     }
+
+    @PutMapping("{id}")
+    public ResponseEntity<IterationDto> updateIteration(@PathVariable("id") String iterationId, @RequestBody IterationDto iteration) {
+        IterationDto updatedIteration = iterationService.updateIteration(iterationId, iteration);
+        return new ResponseEntity<>(updatedIteration, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteIteration(@PathVariable("id") String iterationId) {
+        iterationService.deleteIteration(iterationId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

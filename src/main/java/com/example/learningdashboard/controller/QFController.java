@@ -1,9 +1,7 @@
 package com.example.learningdashboard.controller;
 
 import com.example.learningdashboard.dtos.QFDto;
-import com.example.learningdashboard.dtos.SIDto;
 import com.example.learningdashboard.service.QFService;
-import com.example.learningdashboard.service.SIService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,5 +32,17 @@ public class QFController {
     public ResponseEntity<QFDto> getQFById(@PathVariable("id") String qfId) {
         QFDto qf = qfService.getQFById(qfId);
         return new ResponseEntity<>(qf, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteQF(@PathVariable("id") String qfId) {
+        qfService.deleteQFById(qfId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<QFDto> updateQF(@PathVariable("id") String qfId, @RequestBody QFDto qf) {
+        QFDto updatedQF = qfService.updateQFById(qfId, qf);
+        return new ResponseEntity<>(updatedQF, HttpStatus.OK);
     }
 }

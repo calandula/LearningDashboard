@@ -33,4 +33,22 @@ public class CategoryController {
         CategoryDto category = categoryService.getCategoryById(categoryId);
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
+
+    @GetMapping("/item/{id}")
+    public ResponseEntity<CategoryDto> getCategoryByItem(@PathVariable("id") String itemId) {
+        CategoryDto category = categoryService.getCategoryByItem(itemId);
+        return new ResponseEntity<>(category, HttpStatus.OK);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<CategoryDto> updateCategory(@PathVariable("id") String categoryId, @RequestBody CategoryDto category) {
+        CategoryDto updatedCategory = categoryService.updateCategory(categoryId, category);
+        return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteCategory(@PathVariable("id") String categoryId) {
+        categoryService.deleteCategory(categoryId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

@@ -31,4 +31,11 @@ public class IterationService {
     public List<IterationDto> getIterationsByProject(String projectId) {
         return iterationRepository.getIterationsByProject(projectId);
     }
+
+    public IterationDto updateIteration(String iterationId, IterationDto iteration) {
+        return iteration;
+    }
+
+    public void deleteIteration(String iterationId) {
+    }
 }

@@ -33,4 +33,17 @@ public class ProjectController {
         ProjectDto project = projectService.getProjectById(projectId);
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteProject(@PathVariable("id") String projectId) {
+        projectService.deleteProjectById(projectId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<ProjectDto> updateProject(@PathVariable("id") String projectId, @RequestBody ProjectDto project) {
+        ProjectDto updatedProject = projectService.updateProjectById(projectId, project);
+        return new ResponseEntity<>(updatedProject, HttpStatus.OK);
+    }
+
 }

@@ -1,8 +1,6 @@
 package com.example.learningdashboard.controller;
 
-import com.example.learningdashboard.dtos.QFDto;
 import com.example.learningdashboard.dtos.SIItemDto;
-import com.example.learningdashboard.service.QFService;
 import com.example.learningdashboard.service.SIItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,4 +33,24 @@ public class SIItemController {
         SIItemDto siItem = siItemService.getSIItemById(siItemId);
         return new ResponseEntity<>(siItem, HttpStatus.OK);
     }
+
+    @GetMapping("/project/{id}")
+    public ResponseEntity<SIItemDto> getSIItemByProject(@PathVariable("id") String projectId) {
+        SIItemDto siItem = siItemService.getSIItemByProject(projectId);
+        return new ResponseEntity<>(siItem, HttpStatus.OK);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteSIItem(@PathVariable("id") String siItemId) {
+        siItemService.deleteSIItemById(siItemId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<SIItemDto> updateSIItem(@PathVariable("id") String siItemId, @RequestBody SIItemDto siItem) {
+        SIItemDto updatedSIItem = siItemService.updateSIItemById(siItemId, siItem);
+        return new ResponseEntity<>(updatedSIItem, HttpStatus.OK);
+    }
+
+
 }
