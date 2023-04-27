@@ -1,6 +1,7 @@
 package com.example.learningdashboard.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Setter
@@ -15,6 +16,6 @@ public class CategoryItemDto {
     @NotBlank
     private String color;
 
-    @NotBlank
+    @NotNull
     private int upperThreshold;
 }

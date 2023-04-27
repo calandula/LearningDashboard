@@ -25,9 +25,8 @@ public class IterationRepository {
     @Autowired
     private String namespace;
 
-    public IterationDto save(IterationDto iteration) {
-        String iterationId = UUID.randomUUID().toString();
-        String iterationURI = namespace + iterationId;
+    public IterationDto save(IterationDto iteration, String iterationId) {
+        String iterationURI = iterationId == null ? namespace + UUID.randomUUID().toString() : iterationId;
         Resource iterationResource = ResourceFactory.createResource(iterationURI);
         Resource iterationClass = ResourceFactory.createResource(namespace + "Iteration");
         dataset.begin(ReadWrite.WRITE);
@@ -161,6 +160,28 @@ public class IterationRepository {
             return iterations;
         } finally {
             dataset.end();
+        }
+    }
+
+    public void deleteById(String iterationId, boolean update) {
+        String iterationURI = namespace + iterationId;
+        Resource iterationResource = ResourceFactory.createResource(iterationURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(iterationResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(iterationResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         }
     }
 }

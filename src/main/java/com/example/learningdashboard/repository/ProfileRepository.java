@@ -24,9 +24,8 @@ public class ProfileRepository {
     @Autowired
     private String namespace;
 
-    public ProfileDto save(ProfileDto profile) {
-        String profileId = UUID.randomUUID().toString();
-        String profileURI = namespace + profileId;
+    public ProfileDto save(ProfileDto profile, String profileId) {
+        String profileURI = profileId == null ? namespace + UUID.randomUUID().toString() : profileId;
         Resource profileResource = ResourceFactory.createResource(profileURI);
         Resource profileClass = ResourceFactory.createResource(namespace + "Profile");
         dataset.begin(ReadWrite.WRITE);
@@ -160,6 +159,28 @@ public class ProfileRepository {
             return profile;
         } finally {
             dataset.end();
+        }
+    }
+
+    public void deleteById(String profileId, boolean update) {
+        String profileURI = namespace + profileId;
+        Resource profileResource = ResourceFactory.createResource(profileURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(profileResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(profileResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         }
     }
 }

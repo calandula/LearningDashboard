@@ -15,7 +15,7 @@ public class CategoryService {
     private CategoryRepository categoryRepository;
 
     public CategoryDto createCategory(CategoryDto category) {
-        return categoryRepository.save(category);
+        return categoryRepository.save(category, null);
     }
 
     public List<CategoryDto> getAllCategories() {
@@ -32,10 +32,17 @@ public class CategoryService {
     }
 
     public CategoryDto updateCategory(String categoryId, CategoryDto category) {
-        return category;
+        Optional<CategoryDto> optionalCategory = Optional.ofNullable(categoryRepository.findById(categoryId));
+        if (optionalCategory.isPresent()) {
+            categoryRepository.deleteById(categoryId, true);
+            return categoryRepository.save(category, categoryId);
+        } else {
+            return null;
+        }
     }
 
     public void deleteCategory(String categoryId) {
+        categoryRepository.deleteById(categoryId, false);
     }
 }
 

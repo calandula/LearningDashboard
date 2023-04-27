@@ -1,5 +1,6 @@
 package com.example.learningdashboard.dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,17 +14,16 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class ProjectDto {
 
+    @NotBlank
     private String name;
 
     private String description;
 
-    private String backlogID;
+    private ArrayList<String> dataSources;
 
-    private String taigaURL;
+    private ArrayList<String> students;
 
-    private String githubURL;
-
-    private boolean isGlobal;
+    private boolean isGlobal = false;
 
     private String logo;
 

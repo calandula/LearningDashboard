@@ -1,5 +1,6 @@
 package com.example.learningdashboard.service;
 
+import com.example.learningdashboard.dtos.CategoryItemDto;
 import com.example.learningdashboard.dtos.ProjectDto;
 import com.example.learningdashboard.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProjectService {
@@ -25,14 +27,21 @@ public class ProjectService {
     }
 
     public ProjectDto createProject(ProjectDto project) {
-        return projectRepository.save(project);
+        return projectRepository.save(project, null);
     }
 
     public void deleteProjectById(String projectId) {
+        projectRepository.deleteById(projectId, false);
     }
 
     public ProjectDto updateProjectById(String projectId, ProjectDto project) {
-        return project;
+        Optional<ProjectDto> optionalProject = Optional.ofNullable(projectRepository.findById(projectId));
+        if (optionalProject.isPresent()) {
+            projectRepository.deleteById(projectId, true);
+            return projectRepository.save(project, projectId);
+        } else {
+            return null;
+        }
     }
 }
 

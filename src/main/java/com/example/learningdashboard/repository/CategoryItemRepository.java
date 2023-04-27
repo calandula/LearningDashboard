@@ -19,9 +19,8 @@ public class CategoryItemRepository {
     @Autowired
     private String namespace;
 
-    public CategoryItemDto save(CategoryItemDto categoryItem) {
-        String categoryItemId = UUID.randomUUID().toString();
-        String categoryItemURI = namespace + categoryItemId;
+    public CategoryItemDto save(CategoryItemDto categoryItem, String categoryItemId) {
+        String categoryItemURI = categoryItemId == null ? namespace + UUID.randomUUID().toString() : categoryItemId;
         Resource categoryItemResource = ResourceFactory.createResource(categoryItemURI);
         Resource categoryItemClass = ResourceFactory.createResource(namespace + "CategoryItem");
         dataset.begin(ReadWrite.WRITE);
@@ -123,6 +122,28 @@ public class CategoryItemRepository {
             return categoryItem;
         } finally {
             dataset.end();
+        }
+    }
+
+    public void deleteById(String categoryItemId, boolean update) {
+        String categoryItemURI = namespace + categoryItemId;
+        Resource categoryItemResource = ResourceFactory.createResource(categoryItemURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(categoryItemResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(categoryItemResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         }
     }
 }

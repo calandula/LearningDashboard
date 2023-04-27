@@ -3,9 +3,7 @@ package com.example.learningdashboard.repository;
 import com.example.learningdashboard.dtos.UserDto;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.rdf.model.ResourceFactory;
+import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,9 +24,8 @@ public class UserRepository {
     @Autowired
     private String namespace;
 
-    public UserDto save(UserDto user) {
-        String userId = UUID.randomUUID().toString();
-        String userURI = namespace + userId;
+    public UserDto save(UserDto user, String userId) {
+        String userURI = userId == null ? namespace + UUID.randomUUID().toString() : userId;
         Resource userResource = ResourceFactory.createResource(userURI);
         Resource userClass = ResourceFactory.createResource(namespace + "User");
         dataset.begin(ReadWrite.WRITE);
@@ -114,6 +111,28 @@ public class UserRepository {
             return user;
         } finally {
             dataset.end();
+        }
+    }
+
+    public void deleteById(String userId, boolean update) {
+        String userURI = namespace + userId;
+        Resource userResource = ResourceFactory.createResource(userURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(userResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(userResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         }
     }
 }

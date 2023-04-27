@@ -1,5 +1,6 @@
 package com.example.learningdashboard.dtos;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class QFDto {
 
+    @NotBlank
     private String name;
 
     private String Description;

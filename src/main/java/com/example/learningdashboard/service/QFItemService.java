@@ -1,5 +1,6 @@
 package com.example.learningdashboard.service;
 
+import com.example.learningdashboard.dtos.CategoryItemDto;
 import com.example.learningdashboard.dtos.QFItemDto;
 import com.example.learningdashboard.repository.QFItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class QFItemService {
@@ -25,7 +27,7 @@ public class QFItemService {
     }
 
     public QFItemDto createQFItem(QFItemDto qfItem) {
-        return qfItemRepository.save(qfItem);
+        return qfItemRepository.save(qfItem, null);
     }
 
     public List<QFItemDto> getQFItemBySIItem(String siItemId) {
@@ -37,9 +39,16 @@ public class QFItemService {
     }
 
     public QFItemDto updateQFItem(String qfItemId, QFItemDto qfi) {
-        return qfi;
+        Optional<QFItemDto> optionalQFItem = Optional.ofNullable(qfItemRepository.findById(qfItemId));
+        if (optionalQFItem.isPresent()) {
+            qfItemRepository.deleteById(qfItemId, true);
+            return qfItemRepository.save(qfi, qfItemId);
+        } else {
+            return null;
+        }
     }
 
     public void deleteQFItem(String qfItemId) {
+        qfItemRepository.deleteById(qfItemId, false);
     }
 }

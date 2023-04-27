@@ -26,9 +26,8 @@ public class SIRepository {
     @Autowired
     private String namespace;
 
-    public SIDto save(SIDto si) {
-        String siId = UUID.randomUUID().toString();
-        String siURI = namespace + siId;
+    public SIDto save(SIDto si, String siId) {
+        String siURI = siId == null ? namespace + UUID.randomUUID().toString() : siId;
         Resource siResource = ResourceFactory.createResource(siURI);
         Resource siClass = ResourceFactory.createResource(namespace + "SI");
         dataset.begin(ReadWrite.WRITE);
@@ -156,6 +155,28 @@ public class SIRepository {
             return iterations;
         } finally {
             dataset.end();
+        }
+    }
+
+    public void deleteById(String siId, boolean update) {
+        String siURI = namespace + siId;
+        Resource siResource = ResourceFactory.createResource(siURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(siResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(siResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         }
     }
 }

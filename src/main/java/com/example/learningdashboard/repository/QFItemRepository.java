@@ -24,9 +24,8 @@ public class QFItemRepository {
     @Autowired
     private String namespace;
 
-    public QFItemDto save(QFItemDto qfItem) {
-        String qfItemId = UUID.randomUUID().toString();
-        String qfItemURI = namespace + qfItemId;
+    public QFItemDto save(QFItemDto qfItem, String QFItemId) {
+        String qfItemURI = QFItemId == null ? namespace + UUID.randomUUID().toString() : QFItemId;
         Resource qfItemResource = ResourceFactory.createResource(qfItemURI);
         Resource qfItemClass = ResourceFactory.createResource(namespace + "QFItem");
         dataset.begin(ReadWrite.WRITE);
@@ -146,6 +145,28 @@ public class QFItemRepository {
             return qfItem;
         } finally {
             dataset.end();
+        }
+    }
+
+    public void deleteById(String QFItemId, boolean update) {
+        String QFItemURI = namespace + QFItemId;
+        Resource categoryItemResource = ResourceFactory.createResource(QFItemURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(categoryItemResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(categoryItemResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         }
     }
 }

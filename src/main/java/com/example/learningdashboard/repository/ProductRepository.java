@@ -24,9 +24,8 @@ public class ProductRepository {
     @Autowired
     private String namespace;
 
-    public ProductDto save(ProductDto product) {
-        String productId = UUID.randomUUID().toString();
-        String productURI = namespace + productId;
+    public ProductDto save(ProductDto product, String productId) {
+        String productURI = productId == null ? namespace + UUID.randomUUID().toString() : productId;
         Resource productResource = ResourceFactory.createResource(productURI);
         Resource productClass = ResourceFactory.createResource(namespace + "Product");
         dataset.begin(ReadWrite.WRITE);
@@ -116,10 +115,26 @@ public class ProductRepository {
         }
     }
 
-    /*public ProductDto updateProduct(String productId, ProductDto productDto) {
-        return productDto;
+    public void deleteById(String productId, boolean update) {
+        String productURI = namespace + productId;
+        Resource productResource = ResourceFactory.createResource(productURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(productResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(productResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
     }
 
-    public void deleteProduct(String productId) {
-    }*/
 }

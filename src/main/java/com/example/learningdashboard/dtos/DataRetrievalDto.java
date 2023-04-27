@@ -1,27 +1,26 @@
 package com.example.learningdashboard.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class SIDto {
+public class DataRetrievalDto {
 
     @NotBlank
-    private String name;
+    private String dataSourceName;
 
-    private String description;
+    @NotBlank
+    private String objectName;
 
-    private String assessmentModel;
+    private Map<String, String> apiConfig;
 
-    @NotEmpty
-    private ArrayList<String> qualityFactors;
+    // getters and setters
 }

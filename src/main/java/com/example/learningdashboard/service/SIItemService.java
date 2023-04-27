@@ -1,5 +1,6 @@
 package com.example.learningdashboard.service;
 
+import com.example.learningdashboard.dtos.CategoryItemDto;
 import com.example.learningdashboard.dtos.SIItemDto;
 import com.example.learningdashboard.repository.SIItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SIItemService {
@@ -25,7 +27,7 @@ public class SIItemService {
     }
 
     public SIItemDto createSIItem(SIItemDto siItem) {
-        return siItemRepository.save(siItem);
+        return siItemRepository.save(siItem, null);
     }
 
     public SIItemDto getSIItemByProject(String projectId) {
@@ -33,9 +35,16 @@ public class SIItemService {
     }
 
     public void deleteSIItemById(String siItemId) {
+        siItemRepository.deleteById(siItemId, false);
     }
 
     public SIItemDto updateSIItemById(String siItemId, SIItemDto siItem) {
-        return siItem;
+        Optional<SIItemDto> optionalSIItem = Optional.ofNullable(siItemRepository.findById(siItemId));
+        if (optionalSIItem.isPresent()) {
+            siItemRepository.deleteById(siItemId, true);
+            return siItemRepository.save(siItem, siItemId);
+        } else {
+            return null;
+        }
     }
 }

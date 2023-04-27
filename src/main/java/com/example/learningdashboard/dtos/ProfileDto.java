@@ -1,6 +1,8 @@
 package com.example.learningdashboard.dtos;
 
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,21 +16,23 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class ProfileDto {
 
+    @NotBlank
     private String name;
 
     private String description;
 
-    private String qualityLevel;
+    private String qualityLevel = "All";
 
+    @NotEmpty
     private ArrayList<String> allowedProjects;
 
     private ArrayList<String> allowedStrategicIndicators;
 
-    private String detailedStrategicIndicatorsView;
+    private String detailedStrategicIndicatorsView = "Radar";
 
-    private String detailedFactorsView;
+    private String detailedFactorsView = "Radar";
 
-    private String metricsView;
+    private String metricsView = "Gauge";
 
-    private String qualityModelsView;
+    private String qualityModelsView = "Graph";
 }

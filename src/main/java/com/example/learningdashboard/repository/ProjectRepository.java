@@ -24,9 +24,8 @@ public class ProjectRepository {
     @Autowired
     private String namespace;
 
-    public ProjectDto save(ProjectDto project) {
-        String projectId = UUID.randomUUID().toString();
-        String projectURI = namespace + projectId;
+    public ProjectDto save(ProjectDto project, String projectId) {
+        String projectURI = projectId == null ? namespace + UUID.randomUUID().toString() : projectId;
         Resource projectResource = ResourceFactory.createResource(projectURI);
         Resource projectClass = ResourceFactory.createResource(namespace + "Project");
         dataset.begin(ReadWrite.WRITE);
@@ -38,18 +37,29 @@ public class ProjectRepository {
             if (hiResources.size() != project.getHierarchyItems().size()) {
                 throw new IllegalArgumentException("One or more strategic indicator Item IDs do not exist in the dataset.");
             }
+
+            List<Resource> dsResources = project.getDataSources().stream()
+                    .map(dsId -> ResourceFactory.createResource(namespace + dsId))
+                    .filter(dsResource -> dataset.getDefaultModel().containsResource(dsResource))
+                    .toList();
+            if (dsResources.size() != project.getDataSources().size()) {
+                throw new IllegalArgumentException("One or more datasources IDs do not exist in the dataset.");
+            }
+
+            List<Resource> studentResources = project.getStudents().stream()
+                    .map(studentId -> ResourceFactory.createResource(namespace + studentId))
+                    .filter(studentResource -> dataset.getDefaultModel().containsResource(studentResource))
+                    .toList();
+            if (studentResources.size() != project.getStudents().size()) {
+                throw new IllegalArgumentException("One or more Student IDs do not exist in the dataset.");
+            }
+
             dataset.getDefaultModel()
                     .add(projectResource, RDF.type, projectClass)
                     .add(projectResource, ResourceFactory.createProperty(namespace + "projectName"),
                             ResourceFactory.createPlainLiteral(project.getName()))
                     .add(projectResource, ResourceFactory.createProperty(namespace + "projectDescription"),
                             ResourceFactory.createPlainLiteral(project.getDescription()))
-                    .add(projectResource, ResourceFactory.createProperty(namespace + "projectBacklogID"),
-                            ResourceFactory.createPlainLiteral(project.getBacklogID()))
-                    .add(projectResource, ResourceFactory.createProperty(namespace + "projectTaigaURL"),
-                            ResourceFactory.createPlainLiteral(project.getTaigaURL()))
-                    .add(projectResource, ResourceFactory.createProperty(namespace + "projectGithubURL"),
-                            ResourceFactory.createPlainLiteral(project.getGithubURL()))
                     .add(projectResource, ResourceFactory.createProperty(namespace + "projectIsGlobal"),
                             ResourceFactory.createTypedLiteral(project.isGlobal()))
                     .add(projectResource, ResourceFactory.createProperty(namespace + "projectLogo"),
@@ -60,6 +70,14 @@ public class ProjectRepository {
                     dataset.getDefaultModel().add(projectResource,
                             ResourceFactory.createProperty(namespace + "hasHI"),
                             hiResource));
+            dsResources.forEach(dsResource ->
+                    dataset.getDefaultModel().add(projectResource,
+                            ResourceFactory.createProperty(namespace + "hasDataSource"),
+                            dsResource));
+            studentResources.forEach(studentResource ->
+                    dataset.getDefaultModel().add(projectResource,
+                            ResourceFactory.createProperty(namespace + "hasStudent"),
+                            studentResource));
 
             dataset.commit();
             return null;
@@ -78,13 +96,16 @@ public class ProjectRepository {
                         ProjectDto project = new ProjectDto();
                         project.setName(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectName")).getString());
                         project.setDescription(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectDescription")).getString());
-                        project.setBacklogID(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectBacklogID")).getString());
-                        project.setTaigaURL(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectTaigaURL")).getString());
-                        project.setGithubURL(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectGithubURL")).getString());
                         project.setGlobal(Boolean.parseBoolean(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectIsGlobal")).getString()));
                         project.setLogo(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectLogo")).getString());
 
                         project.setHierarchyItems((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasHI"))
+                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
+                                .mapWith(Resource::getLocalName).toList());
+                        project.setDataSources((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasDataSource"))
+                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
+                                .mapWith(Resource::getLocalName).toList());
+                        project.setStudents((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasStudent"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
                         projects.add(project);
@@ -128,16 +149,21 @@ public class ProjectRepository {
             List<String> HIs = model.listObjectsOfProperty(projectResource, model.createProperty(namespace + "hasHi"))
                     .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
                     .toList();
+            List<String> dss = model.listObjectsOfProperty(projectResource, model.createProperty(namespace + "hasDataSource"))
+                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
+                    .toList();
+            List<String> students = model.listObjectsOfProperty(projectResource, model.createProperty(namespace + "hasStudent"))
+                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
+                    .toList();
 
             ProjectDto project = new ProjectDto();
             project.setName(projectName);
             project.setDescription(projectDescription);
-            project.setBacklogID(projectBacklogID);
-            project.setTaigaURL(projectTaigaURL);
-            project.setGithubURL(projectGithubURL);
             project.setGlobal(Boolean.parseBoolean(projectIsGlobal));
             project.setLogo(projectLogo);
             project.setHierarchyItems((ArrayList<String>) HIs);
+            project.setDataSources((ArrayList<String>) dss);
+            project.setStudents((ArrayList<String>) students);
 
             return project;
         } finally {
@@ -145,4 +171,25 @@ public class ProjectRepository {
         }
     }
 
+    public void deleteById(String projectId, boolean update) {
+        String projectURI = namespace + projectId;
+        Resource projectResource = ResourceFactory.createResource(projectURI);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            if (update) {
+                StmtIterator it = dataset.getDefaultModel().listStatements(projectResource, null, (RDFNode) null);
+                while (it.hasNext()) {
+                    Statement stmt = it.next();
+                    dataset.getDefaultModel().remove(stmt);
+                }
+            }
+            else {
+                dataset.getDefaultModel().removeAll(projectResource, null, (RDFNode) null);
+            }
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
 }
