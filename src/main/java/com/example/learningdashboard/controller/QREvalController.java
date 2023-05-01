@@ -21,7 +21,8 @@ public class QREvalController {
 
     @PostMapping("/retrieve")
     public ResponseEntity<Object> retrieveData(@RequestBody DataRetrievalDto request) {
-        DataSource dataSource = dataSourceFactory.getDataSource(request.getDataSourceName());
+        String dsClass = "github";
+        DataSource dataSource = dataSourceFactory.getDataSource(dsClass, "LearningDashboard", "calandula", "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");
         if (dataSource == null) {
             return ResponseEntity.badRequest().body("Invalid data source name");
         }
@@ -31,13 +32,8 @@ public class QREvalController {
             return ResponseEntity.badRequest().body("Invalid object name for the selected data source");
         }
 
-        Map<String, String> apiConfig = request.getApiConfig();
-        if (apiConfig == null || apiConfig.isEmpty()) {
-            return ResponseEntity.badRequest().body("API config cannot be null or empty");
-        }
-
         try {
-            Object data = dataSource.retrieveData(objectName, apiConfig);
+            Object data = dataSource.retrieveData(objectName);
             return ResponseEntity.ok().body(data);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

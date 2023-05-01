@@ -35,9 +35,9 @@ public class SIItemController {
     }
 
     @GetMapping("/project/{id}")
-    public ResponseEntity<SIItemDto> getSIItemByProject(@PathVariable("id") String projectId) {
-        SIItemDto siItem = siItemService.getSIItemByProject(projectId);
-        return new ResponseEntity<>(siItem, HttpStatus.OK);
+    public ResponseEntity<List<SIItemDto>> getSIItemByProject(@PathVariable("id") String projectId) {
+        List<SIItemDto> siItems = siItemService.getSIItemByProject(projectId);
+        return new ResponseEntity<>(siItems, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

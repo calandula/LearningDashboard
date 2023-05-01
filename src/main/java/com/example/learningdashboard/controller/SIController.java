@@ -42,7 +42,7 @@ public class SIController {
 
     @PutMapping("{id}")
     public ResponseEntity<SIDto> updateSI(@PathVariable("id") String siId, @RequestBody SIDto si) {
-        SIDto updatedSI = siService.updateSIById(siId, si);
+        SIDto updatedSI = siService.updateSI(siId, si);
         return new ResponseEntity<>(updatedSI, HttpStatus.OK);
     }
 }

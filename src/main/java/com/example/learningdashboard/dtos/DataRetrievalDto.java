@@ -15,12 +15,11 @@ import java.util.Map;
 public class DataRetrievalDto {
 
     @NotBlank
-    private String dataSourceName;
+    private String dsId;
 
     @NotBlank
     private String objectName;
 
-    private Map<String, String> apiConfig;
-
-    // getters and setters
+    @NotBlank
+    private String accessToken;
 }

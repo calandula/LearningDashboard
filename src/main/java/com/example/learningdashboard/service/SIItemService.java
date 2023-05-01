@@ -30,8 +30,9 @@ public class SIItemService {
         return siItemRepository.save(siItem, null);
     }
 
-    public SIItemDto getSIItemByProject(String projectId) {
-        return null;
+    public List<SIItemDto> getSIItemByProject(String projectId) {
+        List<SIItemDto> siItems = siItemRepository.findByProject(projectId);
+        return new ArrayList<>(siItems);
     }
 
     public void deleteSIItemById(String siItemId) {

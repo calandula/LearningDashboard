@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataSourceDto {
+public class GithubDataSourceDto {
     @NotBlank
     private String repository;
 

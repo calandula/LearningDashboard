@@ -2,6 +2,7 @@ package com.example.learningdashboard.dtos;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,10 +14,20 @@ import java.util.ArrayList;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class StudentDto {
+public class MetricDto {
+
     @NotBlank
     private String name;
 
-    @NotEmpty
-    private ArrayList<String> memberships;
+    @NotBlank
+    private String description;
+
+    @NotBlank
+    private String category;
+
+    @NotNull
+    private float threshold;
+
+    @NotNull
+    private float value;
 }

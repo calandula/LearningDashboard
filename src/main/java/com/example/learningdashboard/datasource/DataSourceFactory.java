@@ -1,5 +1,7 @@
 package com.example.learningdashboard.datasource;
 
+import com.example.learningdashboard.dtos.DataRetrievalDto;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,13 +11,20 @@ import java.util.stream.Collectors;
 @Component
 public class DataSourceFactory {
 
-    private final Map<String, DataSource> dataSources;
+    public DataSourceFactory() {
 
-    public DataSourceFactory(List<DataSource> dataSources) {
-        this.dataSources = dataSources.stream().collect(Collectors.toMap(DataSource::getName, ds -> ds));
     }
 
-    public DataSource getDataSource(String dataSourceName) {
-        return dataSources.get(dataSourceName);
+    public DataSource getDataSource(String className, Object... initArgs) {
+        if (className.equalsIgnoreCase("github")) {
+            if (initArgs.length != 3) {
+                throw new IllegalArgumentException("Invalid number of arguments for GithubDataSource initialization");
+            }
+            String repository = (String) initArgs[0];
+            String username = (String) initArgs[1];
+            String accessToken = (String) initArgs[2];
+            return new GithubDataSource(new RestTemplateBuilder(), repository, username, accessToken);
+        }
+        return null;
     }
 }

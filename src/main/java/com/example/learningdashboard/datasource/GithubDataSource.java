@@ -1,32 +1,40 @@
 package com.example.learningdashboard.datasource;
 
-import com.example.learningdashboard.model.GithubIssue;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.kohsuke.github.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpEntity;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Component
-public class GithubDataSource implements DataSource {
+public class GithubDataSource extends DataSource {
 
     private final RestTemplate restTemplate;
-    private final String baseUrl;
-    private final String accessToken;
+    private final String baseUrl = "https://api.github.com";
 
-    public GithubDataSource(RestTemplateBuilder restTemplateBuilder, @Value("${github.baseUrl}") String baseUrl, @Value("${github.accessToken}") String accessToken) {
+    private String repository = "";
+    private String owner = "";
+    private String accessToken = "";
+    private static final String ISSUES_OBJECT = "issues";
+    private static final String COMMITS_OBJECT = "commits";
+
+    public GithubDataSource(RestTemplateBuilder restTemplateBuilder, String repository, String owner, String accessToken) {
         this.restTemplate = restTemplateBuilder.build();
-        this.baseUrl = baseUrl;
+        this.repository = repository;
+        this.owner = owner;
+        this.accessToken = accessToken;
+    }
+
+    public GithubDataSource() {
+        this.restTemplate = new RestTemplate();
+    }
+
+    public void init(String repository, String owner, String accessToken) {
+        this.repository = repository;
+        this.owner = owner;
         this.accessToken = accessToken;
     }
 
@@ -37,29 +45,78 @@ public class GithubDataSource implements DataSource {
 
     @Override
     public boolean supportsObject(String objectName) {
-        return "issues".equals(objectName);
+        return objectName.equals(ISSUES_OBJECT) || objectName.equals(COMMITS_OBJECT);
     }
 
     @Override
-    public Object retrieveData(String objectName, Map<String, String> apiConfig) throws Exception {
-        String apiUrl = apiConfig.get("url");
-        if (apiUrl == null || apiUrl.isEmpty()) {
-            throw new IllegalArgumentException("API URL cannot be null or empty");
-        }
+    public Object retrieveData(String objectName) throws Exception {
 
         GitHub github = new GitHubBuilder().withOAuthToken(accessToken).build();
-        GHRepository repo = github.getRepository(apiUrl);
+        GHRepository repo = github.getRepository(owner + "/" + repository);
 
-        if ("issues".equals(objectName)) {
+        if (ISSUES_OBJECT.equals(objectName)) {
             List<GHIssue> issues = repo.getIssues(GHIssueState.ALL);
             //TODO: map to KG
+            System.out.println(issues);
             return issues;
-        } else if ("commits".equals(objectName)) {
+        } else if (COMMITS_OBJECT.equals(objectName)) {
             List<GHCommit> commits = repo.listCommits().asList();
             //TODO: map to KG
+            System.out.println(commits);
             return commits;
         } else {
             throw new IllegalArgumentException("Unsupported object name: " + objectName);
+        }
+    }
+
+    public RestTemplate getRestTemplate() {
+        return restTemplate;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public String getRepository() {
+        return repository;
+    }
+
+    public void setRepository(String repository) {
+        this.repository = repository;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public static void main(String[] args) {
+        GithubDataSource githubDataSource = new GithubDataSource(new RestTemplateBuilder(), "LearningDashboard", "calandula", "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");
+
+        try {
+            List<GHIssue> issues = (List<GHIssue>) githubDataSource.retrieveData("issues");
+            System.out.println("Issues: " + issues);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Retrieve commits from a repository
+        try {
+            List<GHCommit> commits = (List<GHCommit>) githubDataSource.retrieveData("commits");
+            System.out.println("Commits: " + commits);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

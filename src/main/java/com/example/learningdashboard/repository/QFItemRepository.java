@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.QFItemDto;
+import com.example.learningdashboard.dtos.SIItemDto;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -38,6 +39,29 @@ public class QFItemRepository {
                 throw new IllegalArgumentException("One or more metric items IDs do not exist in the dataset.");
             }
 
+            //check weight
+
+            double totalWeight = 0.0;
+            for (String metricId : qfItem.getMetrics()) {
+                Statement weightStmt = dataset.getDefaultModel().getProperty(
+                        ResourceFactory.createResource(namespace + metricId),
+                        ResourceFactory.createProperty(namespace + "metricWeight")
+                );
+                if (weightStmt == null) {
+                    throw new IllegalArgumentException("The weight of the metric item is missing.");
+                }
+                RDFNode weightNode = weightStmt.getObject();
+                if (!weightNode.isLiteral()) {
+                    throw new IllegalArgumentException("The weight of the metric item must be a literal.");
+                }
+                totalWeight += weightNode.asLiteral().getDouble();
+            }
+            if (Math.abs(totalWeight - 1.0) > 0.0001) {
+                throw new IllegalArgumentException("The sum of the metric items' weights must be 1.0.");
+            }
+
+            //insert
+
             dataset.getDefaultModel()
                     .add(qfItemResource, RDF.type, qfItemClass)
                     .add(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemThreshold"),
@@ -46,6 +70,35 @@ public class QFItemRepository {
                             ResourceFactory.createTypedLiteral(0.0))
                     .add(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemWeight"),
                             ResourceFactory.createTypedLiteral(qfItem.getWeight()));
+
+            //compute Value
+            double weightedSum = 0.0;
+            for (String metricId : qfItem.getMetrics()) {
+                Statement weightStmt = dataset.getDefaultModel().getProperty(
+                        ResourceFactory.createResource(namespace + metricId),
+                        ResourceFactory.createProperty(namespace + "metricWeight")
+                );
+                Statement valueStmt = dataset.getDefaultModel().getProperty(
+                        ResourceFactory.createResource(namespace + metricId),
+                        ResourceFactory.createProperty(namespace + "metricValue")
+                );
+                if (weightStmt == null || valueStmt == null) {
+                    throw new IllegalArgumentException("The weight or value of the metric item is missing.");
+                }
+                RDFNode weightNode = weightStmt.getObject();
+                RDFNode valueNode = valueStmt.getObject();
+                if (!weightNode.isLiteral() || !valueNode.isLiteral()) {
+                    throw new IllegalArgumentException("The weight and value of the metric item must be literals.");
+                }
+                double weight = weightNode.asLiteral().getDouble();
+                double value = valueNode.asLiteral().getDouble();
+                weightedSum += weight * value;
+            }
+            dataset.getDefaultModel().add(qfItemResource,
+                    ResourceFactory.createProperty(namespace + "QFItemValue"),
+                    ResourceFactory.createTypedLiteral(weightedSum));
+            
+            //--------
 
 
             String qfClassURI = namespace + "QF";
@@ -164,6 +217,93 @@ public class QFItemRepository {
                 dataset.getDefaultModel().removeAll(categoryItemResource, null, (RDFNode) null);
             }
             dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
+
+    public List<QFItemDto> findBySIItem(String siItemId) {
+        String siItemURI = namespace + siItemId;
+        Resource siItemResource = ResourceFactory.createResource(siItemURI);
+        List<QFItemDto> qfItems = new ArrayList<>();
+        dataset.begin(ReadWrite.READ);
+        try {
+            Model model = dataset.getDefaultModel();
+
+            if (!model.containsResource(siItemResource)) {
+                throw new IllegalArgumentException("SIItem with ID " + siItemId + " does not exist in the dataset.");
+            }
+
+            StmtIterator it = model.listStatements(siItemResource, ResourceFactory.createProperty(namespace + "hasQFI"), (RDFNode) null);
+            while (it.hasNext()) {
+                Statement stmt = it.next();
+                RDFNode qfItemNode = stmt.getObject();
+                if (qfItemNode.isResource()) {
+                    Resource qfItemResource = qfItemNode.asResource();
+
+                    QFItemDto qfItem = new QFItemDto();
+                    qfItem.setThreshold(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemThreshold")).getString()));
+                    qfItem.setValue(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getString()));
+                    qfItem.setCategory(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemCategory")).getObject().asResource().getURI().substring(namespace.length()));
+                    qfItem.setWeight(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getString()));
+                    qfItem.setSourceQF(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceQF")).getObject().asResource().getURI().substring(namespace.length()));
+                    qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
+                            .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
+                            .mapWith(Resource::getLocalName).toList());
+                    qfItems.add(qfItem);
+                }
+            }
+
+            dataset.commit();
+            return qfItems;
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
+
+    public List<QFItemDto> findByProject(String projectId) {
+        String projectURI = namespace + projectId;
+        Resource projectResource = ResourceFactory.createResource(projectURI);
+        List<QFItemDto> qfItems = new ArrayList<>();
+        dataset.begin(ReadWrite.READ);
+        try {
+            Model model = dataset.getDefaultModel();
+
+            if (!model.containsResource(projectResource)) {
+                throw new IllegalArgumentException("Project with ID " + projectId + " does not exist in the dataset.");
+            }
+
+            // Find all SIItems that belong to the project
+            ResIterator it = model.listResourcesWithProperty(ResourceFactory.createProperty(namespace + "belongsToProject"), projectResource);
+            while (it.hasNext()) {
+                Resource siItemResource = it.next();
+
+                // Find all QFItems that belong to the SIItem
+                StmtIterator it2 = model.listStatements(siItemResource, ResourceFactory.createProperty(namespace + "hasQFI"), (RDFNode) null);
+                while (it2.hasNext()) {
+                    Statement stmt = it2.next();
+                    RDFNode qfItemNode = stmt.getObject();
+                    if (qfItemNode.isResource()) {
+                        Resource qfItemResource = qfItemNode.asResource();
+
+                        QFItemDto qfItem = new QFItemDto();
+                        qfItem.setThreshold(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemThreshold")).getString()));
+                        qfItem.setValue(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getString()));
+                        qfItem.setCategory(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemCategory")).getObject().asResource().getURI().substring(namespace.length()));
+                        qfItem.setWeight(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getString()));
+                        qfItem.setSourceQF(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceQF")).getObject().asResource().getURI().substring(namespace.length()));
+                        qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
+                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
+                                .mapWith(Resource::getLocalName).toList());
+                        qfItems.add(qfItem);
+                    }
+                }
+            }
+
+            dataset.commit();
+            return qfItems;
         } catch (Exception e) {
             dataset.abort();
             throw e;

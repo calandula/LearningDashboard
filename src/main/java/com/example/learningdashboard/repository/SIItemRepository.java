@@ -40,12 +40,62 @@ public class SIItemRepository {
                 throw new IllegalArgumentException("One or more quality factors items IDs do not exist in the dataset.");
             }
 
+            //check weight
+
+            double totalWeight = 0.0;
+            for (String qfItemId : siItem.getQfItems()) {
+                Statement weightStmt = dataset.getDefaultModel().getProperty(
+                        ResourceFactory.createResource(namespace + qfItemId),
+                        ResourceFactory.createProperty(namespace + "QFItemWeight")
+                );
+                if (weightStmt == null) {
+                    throw new IllegalArgumentException("The weight of the quality factor item is missing.");
+                }
+                RDFNode weightNode = weightStmt.getObject();
+                if (!weightNode.isLiteral()) {
+                    throw new IllegalArgumentException("The weight of the quality factor item must be a literal.");
+                }
+                totalWeight += weightNode.asLiteral().getDouble();
+            }
+            if (Math.abs(totalWeight - 1.0) > 0.0001) {
+                throw new IllegalArgumentException("The sum of the quality factors items' weights must be 1.0.");
+            }
+
+            //insert
+
             dataset.getDefaultModel()
                     .add(siItemResource, RDF.type, siItemClass)
                     .add(siItemResource, ResourceFactory.createProperty(namespace + "SIItemThreshold"),
-                            ResourceFactory.createTypedLiteral(siItem.getThreshold()))
-                    .add(siItemResource, ResourceFactory.createProperty(namespace + "SIItemValue"),
-                            ResourceFactory.createTypedLiteral(0.0));
+                            ResourceFactory.createTypedLiteral(siItem.getThreshold()));
+
+            //compute Value
+            double weightedSum = 0.0;
+            for (String qfItemId : siItem.getQfItems()) {
+                Statement weightStmt = dataset.getDefaultModel().getProperty(
+                        ResourceFactory.createResource(namespace + qfItemId),
+                        ResourceFactory.createProperty(namespace + "QFItemWeight")
+                );
+                Statement valueStmt = dataset.getDefaultModel().getProperty(
+                        ResourceFactory.createResource(namespace + qfItemId),
+                        ResourceFactory.createProperty(namespace + "QFItemValue")
+                );
+                if (weightStmt == null || valueStmt == null) {
+                    throw new IllegalArgumentException("The weight or value of the quality factor item is missing.");
+                }
+                RDFNode weightNode = weightStmt.getObject();
+                RDFNode valueNode = valueStmt.getObject();
+                if (!weightNode.isLiteral() || !valueNode.isLiteral()) {
+                    throw new IllegalArgumentException("The weight and value of the quality factor item must be literals.");
+                }
+                double weight = weightNode.asLiteral().getDouble();
+                double value = valueNode.asLiteral().getDouble();
+                weightedSum += weight * value;
+            }
+            dataset.getDefaultModel().add(siItemResource,
+                    ResourceFactory.createProperty(namespace + "SIItemValue"),
+                    ResourceFactory.createTypedLiteral(weightedSum));
+
+            //--------
 
 
             String siClassURI = namespace + "SI";
@@ -144,46 +194,6 @@ public class SIItemRepository {
         }
     }
 
-    public List<IterationDto> getIterationsByProject(String projectId) {
-        String projectURI = namespace + projectId;
-        Resource projectResource = ResourceFactory.createResource(projectURI);
-        dataset.begin(ReadWrite.READ);
-        try {
-            Model model = dataset.getDefaultModel();
-
-            List<IterationDto> iterations = new ArrayList<>();
-
-            StmtIterator stmtIterator = model.listStatements(null, model.createProperty(namespace + "associatedProject"), projectResource);
-            while (stmtIterator.hasNext()) {
-                Resource iterationResource = stmtIterator.next().getSubject();
-
-                String iterationName = model.getProperty(iterationResource, model.createProperty(namespace + "iterationName"))
-                        .getString();
-                String iterationSubject = model.getProperty(iterationResource, model.createProperty(namespace + "iterationSubject"))
-                        .getString();
-                String iterationFrom = model.getProperty(iterationResource, model.createProperty(namespace + "iterationFrom"))
-                        .getString();
-                String iterationTo = model.getProperty(iterationResource, model.createProperty(namespace + "iterationTo"))
-                        .getString();
-                List<String> associatedProjects = model.listObjectsOfProperty(iterationResource, model.createProperty(namespace + "associatedProject"))
-                        .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                        .toList();
-
-                IterationDto iteration = new IterationDto();
-                iteration.setName(iterationName);
-                iteration.setSubject(iterationSubject);
-                iteration.setFrom(LocalDate.parse(iterationFrom));
-                iteration.setTo(LocalDate.parse(iterationTo));
-                iteration.setAssociatedProjects((ArrayList<String>) associatedProjects);
-                iterations.add(iteration);
-            }
-
-            return iterations;
-        } finally {
-            dataset.end();
-        }
-    }
-
     public void deleteById(String siItemId, boolean update) {
         String siItemURI = namespace + siItemId;
         Resource siItemResource = ResourceFactory.createResource(siItemURI);
@@ -200,6 +210,45 @@ public class SIItemRepository {
                 dataset.getDefaultModel().removeAll(siItemResource, null, (RDFNode) null);
             }
             dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
+
+    public List<SIItemDto> findByProject(String projectId) {
+        String projectURI = namespace + projectId;
+        Resource projectResource = ResourceFactory.createResource(projectURI);
+        List<SIItemDto> siItems = new ArrayList<>();
+        dataset.begin(ReadWrite.READ);
+        try {
+            Model model = dataset.getDefaultModel();
+
+            if (!model.containsResource(projectResource)) {
+                throw new IllegalArgumentException("Project with ID " + projectId + " does not exist in the dataset.");
+            }
+
+            StmtIterator it = model.listStatements(projectResource, ResourceFactory.createProperty(namespace + "hasHI"), (RDFNode) null);
+            while (it.hasNext()) {
+                Statement stmt = it.next();
+                RDFNode siItemNode = stmt.getObject();
+                if (siItemNode.isResource()) {
+                    Resource siItemResource = siItemNode.asResource();
+
+                    SIItemDto siItem = new SIItemDto();
+                    siItem.setThreshold(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemThreshold")).getString()));
+                    siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemValue")).getString()));
+                    siItem.setCategory(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemCategory")).getObject().asResource().getURI().substring(namespace.length()));
+                    siItem.setSourceSI(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceSI")).getObject().asResource().getURI().substring(namespace.length()));
+                    siItem.setQfItems((ArrayList<String>) siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFI"))
+                            .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
+                            .mapWith(Resource::getLocalName).toList());
+                    siItems.add(siItem);
+                }
+            }
+
+            dataset.commit();
+            return siItems;
         } catch (Exception e) {
             dataset.abort();
             throw e;

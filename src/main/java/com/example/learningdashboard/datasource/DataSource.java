@@ -2,8 +2,8 @@ package com.example.learningdashboard.datasource;
 
 import java.util.Map;
 
-public interface DataSource {
-    String getName();
-    boolean supportsObject(String objectName);
-    Object retrieveData(String objectName, Map<String, String> apiConfig) throws Exception;
+public abstract class DataSource {
+    public abstract String getName();
+    public abstract boolean supportsObject(String objectName);
+    public abstract Object retrieveData(String objectName) throws Exception;
 }

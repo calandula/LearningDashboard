@@ -31,11 +31,13 @@ public class QFItemService {
     }
 
     public List<QFItemDto> getQFItemBySIItem(String siItemId) {
-        return null;
+        List<QFItemDto> qfItem = qfItemRepository.findBySIItem(siItemId);
+        return new ArrayList<>(qfItem);
     }
 
     public List<QFItemDto> getQFItemByProject(String projectId) {
-        return null;
+        List<QFItemDto> qfItem = qfItemRepository.findByProject(projectId);
+        return new ArrayList<>(qfItem);
     }
 
     public QFItemDto updateQFItem(String qfItemId, QFItemDto qfi) {
