@@ -5,6 +5,7 @@ import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,17 +57,25 @@ public class GithubDataSource extends DataSource {
 
         if (ISSUES_OBJECT.equals(objectName)) {
             List<GHIssue> issues = repo.getIssues(GHIssueState.ALL);
-            //TODO: map to KG
+            //insertIssues(issues);
             System.out.println(issues);
             return issues;
         } else if (COMMITS_OBJECT.equals(objectName)) {
             List<GHCommit> commits = repo.listCommits().asList();
-            //TODO: map to KG
+            //insertCommits(commits);
             System.out.println(commits);
             return commits;
         } else {
             throw new IllegalArgumentException("Unsupported object name: " + objectName);
         }
+    }
+
+    private void insertCommits(List<GHCommit> commits) throws IOException {
+        System.out.println(commits);
+    }
+
+    private void insertIssues(List<GHIssue> issues) {
+        System.out.println(issues);
     }
 
     public RestTemplate getRestTemplate() {
@@ -102,7 +111,7 @@ public class GithubDataSource extends DataSource {
     }
 
     public static void main(String[] args) {
-        GithubDataSource githubDataSource = new GithubDataSource(new RestTemplateBuilder(), "LearningDashboard", "calandula", "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");
+        GithubDataSource githubDataSource = new GithubDataSource(new RestTemplateBuilder(), "LearningDashboard", "calandula", "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");
 
         try {
             List<GHIssue> issues = (List<GHIssue>) githubDataSource.retrieveData("issues");

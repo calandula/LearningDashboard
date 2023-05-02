@@ -21,9 +21,9 @@ public class DataSourceFactory {
                 throw new IllegalArgumentException("Invalid number of arguments for GithubDataSource initialization");
             }
             String repository = (String) initArgs[0];
-            String username = (String) initArgs[1];
+            String owner = (String) initArgs[1];
             String accessToken = (String) initArgs[2];
-            return new GithubDataSource(new RestTemplateBuilder(), repository, username, accessToken);
+            return new GithubDataSource(new RestTemplateBuilder(), repository, owner, accessToken);
         }
         return null;
     }

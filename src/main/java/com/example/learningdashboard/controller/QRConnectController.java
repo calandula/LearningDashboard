@@ -8,10 +8,7 @@ import org.apache.jena.query.Dataset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -31,10 +28,10 @@ public class QRConnectController {
         this.dataSourceFactory = dataSourceFactory;
     }
 
-    @PostMapping("/retrieve")
+    @GetMapping("/retrieve")
     public ResponseEntity<Object> retrieveData(@RequestBody DataRetrievalDto request) {
         String className = getDataSourceClass(request.getDsId());
-        DataSource dataSource = dataSourceFactory.getDataSource(className, "LearningDashboard", "calandula", "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");
+        DataSource dataSource = dataSourceFactory.getDataSource(className, "LearningDashboard", "calandula", "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");
         if (dataSource == null) {
             return ResponseEntity.badRequest().body("Invalid data source name");
         }
@@ -46,7 +43,7 @@ public class QRConnectController {
 
         try {
             Object data = dataSource.retrieveData(objectName);
-            return ResponseEntity.ok().body(data);
+            return ResponseEntity.ok().body(1);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("api/qreval")
 public class QREvalController {
 
     private final DataSourceFactory dataSourceFactory;
@@ -19,7 +19,7 @@ public class QREvalController {
         this.dataSourceFactory = dataSourceFactory;
     }
 
-    @PostMapping("/retrieve")
+    @GetMapping("/retrieve")
     public ResponseEntity<Object> retrieveData(@RequestBody DataRetrievalDto request) {
         String dsClass = "github";
         DataSource dataSource = dataSourceFactory.getDataSource(dsClass, "LearningDashboard", "calandula", "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");
