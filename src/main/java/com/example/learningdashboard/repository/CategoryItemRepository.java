@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.CategoryItemDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -54,6 +55,7 @@ public class CategoryItemRepository {
                         categoryItem.setType(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIType")).getString());
                         categoryItem.setColor(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIColor")).getString());
                         categoryItem.setUpperThreshold(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIUpperThreshold")).getInt());
+                        categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
                         categoryItems.add(categoryItem);
                     });
 
@@ -87,6 +89,7 @@ public class CategoryItemRepository {
             categoryItem.setType(categoryItemType);
             categoryItem.setColor(categoryItemColor);
             categoryItem.setUpperThreshold(categoryItemUpperThreshold);
+            categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
             return categoryItem;
         } finally {
             dataset.end();
@@ -121,6 +124,7 @@ public class CategoryItemRepository {
             categoryItem.setType(categoryItemType);
             categoryItem.setColor(categoryItemColor);
             categoryItem.setUpperThreshold(categoryItemUpperThreshold);
+            categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
             return categoryItem;
         } finally {
             dataset.end();

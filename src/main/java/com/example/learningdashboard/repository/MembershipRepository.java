@@ -2,6 +2,7 @@ package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.MembershipDto;
 import com.example.learningdashboard.dtos.StudentDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -34,6 +35,7 @@ public class MembershipRepository {
                         MembershipDto membership = new MembershipDto();
                         membership.setUsername(membershipResource.getProperty(ResourceFactory.createProperty(namespace + "membershipUsername")).getString());
                         membership.setBasedDataSource(membershipResource.getProperty(ResourceFactory.createProperty(namespace + "sourceDS")).getString());
+                        membership.setId(JenaUtils.parseId(membershipResource.getURI()));
                         memberships.add(membership);
                     });
 
@@ -65,6 +67,7 @@ public class MembershipRepository {
             MembershipDto membership = new MembershipDto();
             membership.setUsername(membershipUsername);
             membership.setBasedDataSource(sourceDS);
+            membership.setId(JenaUtils.parseId(membershipResource.getURI()));
             return membership;
         } finally {
             dataset.end();
@@ -122,6 +125,7 @@ public class MembershipRepository {
                     MembershipDto membership = new MembershipDto();
                     membership.setUsername(membershipUsername);
                     membership.setBasedDataSource(sourceDS);
+                    membership.setId(JenaUtils.parseId(membershipResource.getURI()));
                     memberships.add(membership);
                 }
             }

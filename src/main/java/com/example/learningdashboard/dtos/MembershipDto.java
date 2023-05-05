@@ -14,6 +14,8 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MembershipDto {
+
+    private String id;
     @NotBlank
     private String username;
 

@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.CategoryDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -60,12 +61,13 @@ public class CategoryRepository {
         dataset.begin(ReadWrite.READ);
         try {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Category"))
-                    .forEachRemaining(productResource -> {
+                    .forEachRemaining(categoryResource -> {
                         CategoryDto category = new CategoryDto();
-                        category.setName(productResource.getProperty(ResourceFactory.createProperty(namespace + "categoryName")).getString());
-                        category.setCategoryItems((ArrayList<String>) productResource.listProperties(ResourceFactory.createProperty(namespace + "hasCategoryItem"))
+                        category.setName(categoryResource.getProperty(ResourceFactory.createProperty(namespace + "categoryName")).getString());
+                        category.setCategoryItems((ArrayList<String>) categoryResource.listProperties(ResourceFactory.createProperty(namespace + "hasCategoryItem"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        category.setId(JenaUtils.parseId(categoryResource.getURI()));
                         categories.add(category);
                     });
 
@@ -97,6 +99,7 @@ public class CategoryRepository {
             CategoryDto category = new CategoryDto();
             category.setName(categoryName);
             category.setCategoryItems((ArrayList<String>) categoryItems);
+            category.setId(JenaUtils.parseId(categoryResource.getURI()));
             return category;
         } finally {
             dataset.end();
@@ -129,6 +132,7 @@ public class CategoryRepository {
             CategoryDto category = new CategoryDto();
             category.setName(categoryName);
             category.setCategoryItems((ArrayList<String>) categoryItems);
+            category.setId(JenaUtils.parseId(categoryResource.getURI()));
             return category;
         } finally {
             dataset.end();

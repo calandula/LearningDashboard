@@ -2,6 +2,7 @@ package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.IterationDto;
 import com.example.learningdashboard.dtos.SIDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -75,6 +76,7 @@ public class SIRepository {
                         si.setQualityFactors((ArrayList<String>) siResource.listProperties(ResourceFactory.createProperty(namespace + "hasQF"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        si.setId(JenaUtils.parseId(siResource.getURI()));
                         sis.add(si);
                     });
 
@@ -112,47 +114,8 @@ public class SIRepository {
             si.setDescription(SIDescription);
             si.setAssessmentModel(SIAssessmentModel);
             si.setQualityFactors((ArrayList<String>) QFs);
+            si.setId(JenaUtils.parseId(siResource.getURI()));
             return si;
-        } finally {
-            dataset.end();
-        }
-    }
-
-    public List<IterationDto> getIterationsByProject(String projectId) {
-        String projectURI = namespace + projectId;
-        Resource projectResource = ResourceFactory.createResource(projectURI);
-        dataset.begin(ReadWrite.READ);
-        try {
-            Model model = dataset.getDefaultModel();
-
-            List<IterationDto> iterations = new ArrayList<>();
-
-            StmtIterator stmtIterator = model.listStatements(null, model.createProperty(namespace + "associatedProject"), projectResource);
-            while (stmtIterator.hasNext()) {
-                Resource iterationResource = stmtIterator.next().getSubject();
-
-                String iterationName = model.getProperty(iterationResource, model.createProperty(namespace + "iterationName"))
-                        .getString();
-                String iterationSubject = model.getProperty(iterationResource, model.createProperty(namespace + "iterationSubject"))
-                        .getString();
-                String iterationFrom = model.getProperty(iterationResource, model.createProperty(namespace + "iterationFrom"))
-                        .getString();
-                String iterationTo = model.getProperty(iterationResource, model.createProperty(namespace + "iterationTo"))
-                        .getString();
-                List<String> associatedProjects = model.listObjectsOfProperty(iterationResource, model.createProperty(namespace + "associatedProject"))
-                        .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                        .toList();
-
-                IterationDto iteration = new IterationDto();
-                iteration.setName(iterationName);
-                iteration.setSubject(iterationSubject);
-                iteration.setFrom(LocalDate.parse(iterationFrom));
-                iteration.setTo(LocalDate.parse(iterationTo));
-                iteration.setAssociatedProjects((ArrayList<String>) associatedProjects);
-                iterations.add(iteration);
-            }
-
-            return iterations;
         } finally {
             dataset.end();
         }

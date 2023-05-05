@@ -16,11 +16,13 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class QFItemDto {
 
+    private String id;
     @NotBlank
     private String sourceQF;
 
     private float value;
 
+    @NotNull
     private float threshold;
 
     @NotBlank

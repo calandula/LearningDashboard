@@ -2,6 +2,7 @@ package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.IterationDto;
 import com.example.learningdashboard.dtos.SIItemDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -148,6 +149,7 @@ public class SIItemRepository {
                         siItem.setQfItems((ArrayList<String>) siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFI"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
                         siItems.add(siItem);
                     });
 
@@ -188,6 +190,7 @@ public class SIItemRepository {
             siItem.setQfItems((ArrayList<String>) QFIs);
             siItem.setCategory(SIItemCategory);
             siItem.setSourceSI(sourceSI);
+            siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
             return siItem;
         } finally {
             dataset.end();
@@ -243,6 +246,7 @@ public class SIItemRepository {
                     siItem.setQfItems((ArrayList<String>) siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFI"))
                             .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                             .mapWith(Resource::getLocalName).toList());
+                    siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
                     siItems.add(siItem);
                 }
             }

@@ -2,6 +2,7 @@ package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.CategoryDto;
 import com.example.learningdashboard.dtos.StudentDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -31,12 +32,13 @@ public class StudentRepository {
         try {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Student"))
                     .forEachRemaining(studentResource -> {
-                        StudentDto category = new StudentDto();
-                        category.setName(studentResource.getProperty(ResourceFactory.createProperty(namespace + "studentName")).getString());
-                        category.setMemberships((ArrayList<String>) studentResource.listProperties(ResourceFactory.createProperty(namespace + "hasMembership"))
+                        StudentDto student = new StudentDto();
+                        student.setName(studentResource.getProperty(ResourceFactory.createProperty(namespace + "studentName")).getString());
+                        student.setMemberships((ArrayList<String>) studentResource.listProperties(ResourceFactory.createProperty(namespace + "hasMembership"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
-                        students.add(category);
+                        student.setId(JenaUtils.parseId(studentResource.getURI()));
+                        students.add(student);
                     });
 
             dataset.commit();
@@ -67,6 +69,7 @@ public class StudentRepository {
             StudentDto student = new StudentDto();
             student.setName(studentName);
             student.setMemberships((ArrayList<String>) memberships);
+            student.setId(JenaUtils.parseId(studentResource.getURI()));
             return student;
         } finally {
             dataset.end();
@@ -126,6 +129,7 @@ public class StudentRepository {
                 student.setMemberships((ArrayList<String>) studentResource.listProperties(ResourceFactory.createProperty(namespace + "hasMembership"))
                         .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                         .mapWith(Resource::getLocalName).toList());
+                student.setId(JenaUtils.parseId(studentResource.getURI()));
 
                 students.add(student);
             }

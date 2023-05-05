@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.ProfileDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -103,6 +104,7 @@ public class ProfileRepository {
                         profile.setAllowedStrategicIndicators((ArrayList<String>) profileResource.listProperties(ResourceFactory.createProperty(namespace + "allowedSI"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        profile.setId(JenaUtils.parseId(profileResource.getURI()));
                         profiles.add(profile);
                     });
 
@@ -156,6 +158,7 @@ public class ProfileRepository {
             profile.setQualityModelsView(profileQMView);
             profile.setAllowedProjects((ArrayList<String>) allowedProjects);
             profile.setAllowedStrategicIndicators((ArrayList<String>) allowedSIs);
+            profile.setId(JenaUtils.parseId(profileResource.getURI()));
             return profile;
         } finally {
             dataset.end();

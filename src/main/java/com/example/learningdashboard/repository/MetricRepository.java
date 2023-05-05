@@ -3,6 +3,7 @@ package com.example.learningdashboard.repository;
 import com.example.learningdashboard.dtos.CategoryDto;
 import com.example.learningdashboard.dtos.MetricDto;
 import com.example.learningdashboard.dtos.SIItemDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -70,13 +71,14 @@ public class MetricRepository {
         try {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Metric"))
                     .forEachRemaining(metricResource -> {
-                        MetricDto category = new MetricDto();
-                        category.setName(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString());
-                        category.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
-                        category.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
-                        category.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
-                        category.setCategory(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricCategory")).getString());
-                        metrics.add(category);
+                        MetricDto metric = new MetricDto();
+                        metric.setName(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString());
+                        metric.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
+                        metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
+                        metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
+                        metric.setCategory(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricCategory")).getString());
+                        metric.setId(JenaUtils.parseId(metricResource.getURI()));
+                        metrics.add(metric);
                     });
 
             dataset.commit();
@@ -115,6 +117,7 @@ public class MetricRepository {
             metric.setCategory(metricCategory);
             metric.setValue(Float.parseFloat(metricValue));
             metric.setThreshold(Float.parseFloat(metricThreshold));
+            metric.setId(JenaUtils.parseId(metricResource.getURI()));
             return metric;
         } finally {
             dataset.end();
@@ -146,6 +149,7 @@ public class MetricRepository {
                     metric.setCategory(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricCategory")).getObject().asResource().getURI().substring(namespace.length()));
                     metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getObject().asResource().getURI().substring(namespace.length())));
                     metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getObject().asResource().getURI().substring(namespace.length())));
+                    metric.setId(JenaUtils.parseId(metricResource.getURI()));
                     metrics.add(metric);
                 }
             }

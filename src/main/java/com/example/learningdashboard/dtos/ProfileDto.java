@@ -16,9 +16,11 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class ProfileDto {
 
+    private String id;
     @NotBlank
     private String name;
 
+    @NotBlank
     private String description;
 
     private String qualityLevel = "All";
@@ -26,6 +28,7 @@ public class ProfileDto {
     @NotEmpty
     private ArrayList<String> allowedProjects;
 
+    @NotEmpty
     private ArrayList<String> allowedStrategicIndicators;
 
     private String detailedStrategicIndicatorsView = "Radar";

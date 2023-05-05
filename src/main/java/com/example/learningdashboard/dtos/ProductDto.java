@@ -15,11 +15,14 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class ProductDto {
 
+    private String id;
     @NotBlank
     private String name;
 
+    @NotBlank
     private String description;
 
+    @NotBlank
     private String logo;
 
     @NotEmpty

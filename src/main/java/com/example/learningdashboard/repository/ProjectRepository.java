@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.ProjectDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -108,6 +109,7 @@ public class ProjectRepository {
                         project.setStudents((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasStudent"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        project.setId(JenaUtils.parseId(projectResource.getURI()));
                         projects.add(project);
                     });
 
@@ -164,6 +166,7 @@ public class ProjectRepository {
             project.setHierarchyItems((ArrayList<String>) HIs);
             project.setDataSources((ArrayList<String>) dss);
             project.setStudents((ArrayList<String>) students);
+            project.setId(JenaUtils.parseId(projectResource.getURI()));
 
             return project;
         } finally {

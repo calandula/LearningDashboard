@@ -2,6 +2,7 @@ package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.QFItemDto;
 import com.example.learningdashboard.dtos.SIItemDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -152,6 +153,7 @@ public class QFItemRepository {
                         qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        qfItem.setId(JenaUtils.parseId(qfItemResource.getURI()));
                         qfItems.add(qfItem);
                     });
 
@@ -195,6 +197,7 @@ public class QFItemRepository {
             qfItem.setSourceQF(sourceQF);
             qfItem.setCategory(QFItemCategory);
             qfItem.setMetrics((ArrayList<String>) Metrics);
+            qfItem.setId(JenaUtils.parseId(qfItemResource.getURI()));
             return qfItem;
         } finally {
             dataset.end();
@@ -251,6 +254,7 @@ public class QFItemRepository {
                     qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
                             .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                             .mapWith(Resource::getLocalName).toList());
+                    qfItem.setId(JenaUtils.parseId(qfItemResource.getURI()));
                     qfItems.add(qfItem);
                 }
             }
@@ -297,6 +301,7 @@ public class QFItemRepository {
                         qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        qfItem.setId(JenaUtils.parseId(qfItemResource.getURI()));
                         qfItems.add(qfItem);
                     }
                 }

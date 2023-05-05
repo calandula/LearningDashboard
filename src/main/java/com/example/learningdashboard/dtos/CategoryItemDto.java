@@ -10,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class CategoryItemDto {
 
+    private String id;
     @NotBlank
     private String type;
 

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryDto {
+    private String id;
 
     @NotBlank
     private String name;

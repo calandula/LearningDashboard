@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.IterationDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -77,6 +78,7 @@ public class IterationRepository {
                         iteration.setAssociatedProjects((ArrayList<String>) iterationResource.listProperties(ResourceFactory.createProperty(namespace + "associatedProject"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
+                        iteration.setId(JenaUtils.parseId(iterationResource.getURI()));
                         iterations.add(iteration);
                     });
 
@@ -117,6 +119,8 @@ public class IterationRepository {
             iteration.setFrom(LocalDate.parse(iterationFrom));
             iteration.setTo(LocalDate.parse(iterationTo));
             iteration.setAssociatedProjects((ArrayList<String>) associatedProjects);
+            iteration.setId(JenaUtils.parseId(iterationResource.getURI()));
+
             return iteration;
         } finally {
             dataset.end();
@@ -154,6 +158,8 @@ public class IterationRepository {
                 iteration.setFrom(LocalDate.parse(iterationFrom));
                 iteration.setTo(LocalDate.parse(iterationTo));
                 iteration.setAssociatedProjects((ArrayList<String>) associatedProjects);
+                iteration.setId(JenaUtils.parseId(iterationResource.getURI()));
+
                 iterations.add(iteration);
             }
 

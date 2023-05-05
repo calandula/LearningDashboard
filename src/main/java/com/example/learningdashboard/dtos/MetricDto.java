@@ -16,6 +16,8 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class MetricDto {
 
+    private String id;
+
     @NotBlank
     private String name;
 

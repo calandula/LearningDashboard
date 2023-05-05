@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.DataSourceDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -33,6 +34,7 @@ public class DataSourceRepository {
                         DataSourceDto ds = new DataSourceDto();
                         ds.setRepository(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString());
                         ds.setOwner(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceOwner")).getString());
+                        ds.setId(JenaUtils.parseId(dsResource.getURI()));
                         dsList.add(ds);
                     });
 
@@ -63,6 +65,7 @@ public class DataSourceRepository {
             DataSourceDto ds = new DataSourceDto();
             ds.setRepository(datasourceRepository);
             ds.setOwner(datasourceOwner);
+            ds.setId(JenaUtils.parseId(dsResource.getURI()));
             return ds;
         } finally {
             dataset.end();
@@ -110,7 +113,7 @@ public class DataSourceRepository {
                 DataSourceDto ds = new DataSourceDto();
                 ds.setRepository(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString());
                 ds.setOwner(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceOwner")).getString());
-
+                ds.setId(JenaUtils.parseId(dsResource.getURI()));
                 dsList.add(ds);
             }
 

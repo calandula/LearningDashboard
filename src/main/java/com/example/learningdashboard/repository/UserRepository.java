@@ -1,6 +1,7 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.UserDto;
+import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -66,6 +67,7 @@ public class UserRepository {
                         user.setSecurityQuestion(userResource.getProperty(ResourceFactory.createProperty(namespace + "userSecurityQuestion")).getString());
                         user.setAnswer(userResource.getProperty(ResourceFactory.createProperty(namespace + "userAnswer")).getString());
                         user.setPassword(userResource.getProperty(ResourceFactory.createProperty(namespace + "userPassword")).getString());
+                        user.setId(JenaUtils.parseId(userResource.getURI()));
                         users.add(user);
                     });
 
@@ -108,6 +110,7 @@ public class UserRepository {
             user.setSecurityQuestion(userSecurityQuestion);
             user.setAnswer(userAnswer);
             user.setPassword(userPassword);
+            user.setId(JenaUtils.parseId(userResource.getURI()));
             return user;
         } finally {
             dataset.end();
