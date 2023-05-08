@@ -31,5 +31,8 @@ public class MetricDto {
     private float threshold;
 
     @NotNull
+    private float weight;
+
+    @NotNull
     private float value;
 }

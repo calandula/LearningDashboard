@@ -89,9 +89,10 @@ public class MembershipRepository {
                     .add(membershipResource, ResourceFactory.createProperty(namespace + "membershipUsername"),
                             ResourceFactory.createPlainLiteral(membership.getUsername()))
                     .add(membershipResource, ResourceFactory.createProperty(namespace + "sourceDS"),
-                            ResourceFactory.createPlainLiteral(membership.getBasedDataSource()));
+                            ResourceFactory.createResource(namespace + membership.getBasedDataSource()));
             dataset.commit();
-            return null;
+            MembershipDto memb = new MembershipDto(membershipURI, membership.getUsername(), membership.getBasedDataSource());
+            return memb;
         } catch (Exception e) {
             dataset.abort();
             throw e;

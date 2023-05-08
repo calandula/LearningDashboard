@@ -18,7 +18,5 @@ public class StudentDto {
     private String id;
     @NotBlank
     private String name;
-
-    @NotEmpty
     private ArrayList<String> memberships;
 }

@@ -19,4 +19,7 @@ public class DataSourceDto {
 
     @NotBlank
     private String owner;
+
+    @NotBlank
+    private String accessToken;
 }

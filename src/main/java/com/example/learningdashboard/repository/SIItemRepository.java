@@ -101,7 +101,7 @@ public class SIItemRepository {
 
             String siClassURI = namespace + "SI";
             Resource siClass = ResourceFactory.createResource(siClassURI);
-            Resource sourceSI = ResourceFactory.createResource(siItem.getSourceSI());
+            Resource sourceSI = ResourceFactory.createResource(namespace + siItem.getSourceSI());
             if (dataset.getDefaultModel().contains(sourceSI, RDF.type, siClass)) {
                 dataset.getDefaultModel().add(siItemResource,
                         ResourceFactory.createProperty(namespace + "sourceSI"),
@@ -112,7 +112,7 @@ public class SIItemRepository {
 
             String categoryClassURI = namespace + "Category";
             Resource categoryClass = ResourceFactory.createResource(categoryClassURI);
-            Resource sourceCategory = ResourceFactory.createResource(siItem.getCategory());
+            Resource sourceCategory = ResourceFactory.createResource(namespace + siItem.getCategory());
             if (dataset.getDefaultModel().contains(sourceCategory, RDF.type, categoryClass)) {
                 dataset.getDefaultModel().add(siItemResource,
                         ResourceFactory.createProperty(namespace + "SIItemCategory"),
@@ -139,17 +139,18 @@ public class SIItemRepository {
         List<SIItemDto> siItems = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
-            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Iteration"))
+            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "SIItem"))
                     .forEachRemaining(siItemResource -> {
                         SIItemDto siItem = new SIItemDto();
                         siItem.setThreshold(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemThreshold")).getString()));
                         siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemValue")).getString()));
-                        siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemCategory")).getString()));
-                        siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceSI")).getString()));
+                        siItem.setCategory(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "SIItemCategory")).getURI());
+                        siItem.setSourceSI(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "sourceSI")).getURI());
                         siItem.setQfItems((ArrayList<String>) siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFI"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
                         siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
+
                         siItems.add(siItem);
                     });
 

@@ -20,6 +20,4 @@ public class DataRetrievalDto {
     @NotBlank
     private String objectName;
 
-    @NotBlank
-    private String accessToken;
 }

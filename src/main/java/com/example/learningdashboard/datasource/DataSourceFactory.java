@@ -1,7 +1,9 @@
 package com.example.learningdashboard.datasource;
 
 import com.example.learningdashboard.dtos.DataRetrievalDto;
+import com.example.learningdashboard.repository.DataSourceRepository;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -15,16 +17,18 @@ public class DataSourceFactory {
 
     }
 
-    public DataSource getDataSource(String className, Object... initArgs) {
-        if (className.equalsIgnoreCase("github")) {
-            if (initArgs.length != 3) {
-                throw new IllegalArgumentException("Invalid number of arguments for GithubDataSource initialization");
-            }
-            String repository = (String) initArgs[0];
-            String owner = (String) initArgs[1];
-            String accessToken = (String) initArgs[2];
-            return new GithubDataSource(new RestTemplateBuilder(), repository, owner, accessToken);
+    public DataSource getDataSource(String dataSourceClassName, String dataSourceId, DataSourceRepository dataSourceRepository) {
+        DataSource dataSource = null;
+        switch (dataSourceClassName) {
+            case "DataSource", "GitHubDataSource":
+                dataSource = new GithubDataSource(dataSourceId, dataSourceRepository);
+                break;
+            case "TaigaDataSource":
+                dataSource = new TaigaDataSource(dataSourceId, dataSourceRepository);
+                break;
+            default:
+                return null;
         }
-        return null;
+        return dataSource;
     }
 }

@@ -1,6 +1,5 @@
 package com.example.learningdashboard.repository;
 
-import com.example.learningdashboard.dtos.CategoryDto;
 import com.example.learningdashboard.dtos.StudentDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
@@ -82,22 +81,25 @@ public class StudentRepository {
         Resource studentClass = ResourceFactory.createResource(namespace + "Student");
         dataset.begin(ReadWrite.WRITE);
         try {
-            List<Resource> studentResources = student.getMemberships().stream()
-                    .map(membershipId -> ResourceFactory.createResource(namespace + membershipId))
-                    .filter(membershipResource -> dataset.getDefaultModel().containsResource(membershipResource))
-                    .toList();
-            if (studentResources.size() != student.getMemberships().size()) {
-                throw new IllegalArgumentException("One or more membership IDs do not exist in the dataset.");
+            if (!student.getMemberships().isEmpty()) {
+                List<Resource> studentResources = student.getMemberships().stream()
+                        .map(membershipId -> ResourceFactory.createResource(namespace + membershipId))
+                        .filter(membershipResource -> dataset.getDefaultModel().containsResource(membershipResource))
+                        .toList();
+                if (studentResources.size() != student.getMemberships().size()) {
+                    throw new IllegalArgumentException("One or more membership IDs do not exist in the dataset.");
+                }
+
+                studentResources.forEach(membershipResource ->
+                        dataset.getDefaultModel().add(studentResource,
+                                ResourceFactory.createProperty(namespace + "hasMembership"),
+                                membershipResource));
             }
+
             dataset.getDefaultModel()
                     .add(studentResource, RDF.type, studentClass)
                     .add(studentResource, ResourceFactory.createProperty(namespace + "studentName"),
                             ResourceFactory.createPlainLiteral(student.getName()));
-
-            studentResources.forEach(membershipResource ->
-                    dataset.getDefaultModel().add(studentResource,
-                            ResourceFactory.createProperty(namespace + "hasMembership"),
-                            membershipResource));
 
             dataset.commit();
             return null;
@@ -163,6 +165,35 @@ public class StudentRepository {
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        }
+    }
+
+    public void assignMembership(String studentId, String savedMembershipId) {
+        String studentURI = namespace + studentId;
+        Resource studentResource = ResourceFactory.createResource(studentURI);
+        Resource membershipResource = ResourceFactory.createResource(savedMembershipId);
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            // Check if the student and membership exist in the dataset
+            if (!dataset.getDefaultModel().containsResource(studentResource)) {
+                throw new RuntimeException("Student with ID " + studentId + " does not exist");
+            }
+            if (!dataset.getDefaultModel().containsResource(membershipResource)) {
+                throw new RuntimeException("Membership with ID " + savedMembershipId + " does not exist");
+            }
+
+            // Create a hasMembership relation between the student and membership
+            Resource student = dataset.getDefaultModel().getResource(studentId);
+            Resource membership = dataset.getDefaultModel().getResource(savedMembershipId);
+            Property hasMembership = dataset.getDefaultModel().createProperty(namespace + "hasMembership");
+            student.addProperty(hasMembership, membership);
+
+            dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            dataset.end();
         }
     }
 }

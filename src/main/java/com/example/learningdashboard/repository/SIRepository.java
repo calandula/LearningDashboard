@@ -99,13 +99,13 @@ public class SIRepository {
                 return null;
             }
 
-            String SIName = model.getProperty(siResource, model.createProperty(namespace + "iterationName"))
+            String SIName = model.getProperty(siResource, model.createProperty(namespace + "SIName"))
                     .getString();
-            String SIDescription = model.getProperty(siResource, model.createProperty(namespace + "iterationSubject"))
+            String SIDescription = model.getProperty(siResource, model.createProperty(namespace + "SIDescription"))
                     .getString();
-            String SIAssessmentModel = model.getProperty(siResource, model.createProperty(namespace + "iterationFrom"))
+            String SIAssessmentModel = model.getProperty(siResource, model.createProperty(namespace + "SIAssessmentModel"))
                     .getString();
-            List<String> QFs = model.listObjectsOfProperty(siResource, model.createProperty(namespace + "associatedProject"))
+            List<String> QFs = model.listObjectsOfProperty(siResource, model.createProperty(namespace + "hasQF"))
                     .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
                     .toList();
 

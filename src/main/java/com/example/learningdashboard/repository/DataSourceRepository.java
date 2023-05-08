@@ -46,6 +46,29 @@ public class DataSourceRepository {
         }
     }
 
+    public String getClass(String datasourceId) {
+        dataset.begin(ReadWrite.READ);
+        try {
+            Model model = dataset.getDefaultModel();
+            Resource subject = model.getResource(namespace + datasourceId);
+            Property predicate = RDF.type;
+            StmtIterator iterator = model.listStatements(subject, predicate, (RDFNode) null);
+
+            if (iterator.hasNext()) {
+                Statement statement = iterator.next();
+                RDFNode object = statement.getObject();
+
+                if (object.isResource()) {
+                    return object.asResource().getURI().replace(namespace, "");
+                }
+            }
+        } finally {
+            dataset.end();
+        }
+
+        return null;
+    }
+
     public DataSourceDto findById(String dsId) {
         String dsURI = namespace + dsId;
         Resource dsResource = ResourceFactory.createResource(dsURI);

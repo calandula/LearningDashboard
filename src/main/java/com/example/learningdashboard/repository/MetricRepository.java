@@ -43,12 +43,14 @@ public class MetricRepository {
                     .add(metricResource, ResourceFactory.createProperty(namespace + "metricThreshold"),
                             ResourceFactory.createTypedLiteral(metric.getThreshold()))
                     .add(metricResource, ResourceFactory.createProperty(namespace + "metricValue"),
-                            ResourceFactory.createTypedLiteral(metric.getValue()));
+                            ResourceFactory.createTypedLiteral(metric.getValue()))
+                    .add(metricResource, ResourceFactory.createProperty(namespace + "metricWeight"),
+                            ResourceFactory.createTypedLiteral(metric.getWeight()));
 
 
             String categoryClassURI = namespace + "Category";
             Resource categoryClass = ResourceFactory.createResource(categoryClassURI);
-            Resource sourceCategory = ResourceFactory.createResource(metric.getCategory());
+            Resource sourceCategory = ResourceFactory.createResource(namespace + metric.getCategory());
             if (dataset.getDefaultModel().contains(sourceCategory, RDF.type, categoryClass)) {
                 dataset.getDefaultModel().add(metricResource,
                         ResourceFactory.createProperty(namespace + "metricCategory"),
@@ -75,8 +77,9 @@ public class MetricRepository {
                         metric.setName(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString());
                         metric.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
                         metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
+                        metric.setWeight(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getString()));
                         metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
-                        metric.setCategory(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricCategory")).getString());
+                        metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());
                         metric.setId(JenaUtils.parseId(metricResource.getURI()));
                         metrics.add(metric);
                     });
@@ -108,8 +111,9 @@ public class MetricRepository {
                     .getString();
             String metricThreshold = model.getProperty(metricResource, model.createProperty(namespace + "metricThreshold"))
                     .getString();
-            String metricCategory = model.getProperty(metricResource, model.createProperty(namespace + "metricCategory"))
+            String metricWeight = model.getProperty(metricResource, model.createProperty(namespace + "metricWeight"))
                     .getString();
+            String metricCategory = metricResource.getPropertyResourceValue(model.createProperty(namespace + "metricCategory")).getURI();
 
             MetricDto metric = new MetricDto();
             metric.setName(metricName);
@@ -117,6 +121,7 @@ public class MetricRepository {
             metric.setCategory(metricCategory);
             metric.setValue(Float.parseFloat(metricValue));
             metric.setThreshold(Float.parseFloat(metricThreshold));
+            metric.setWeight(Float.parseFloat(metricWeight));
             metric.setId(JenaUtils.parseId(metricResource.getURI()));
             return metric;
         } finally {
@@ -146,8 +151,9 @@ public class MetricRepository {
                     MetricDto metric = new MetricDto();
                     metric.setName(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString())));
                     metric.setDescription(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString())));
-                    metric.setCategory(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricCategory")).getObject().asResource().getURI().substring(namespace.length()));
+                    metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());
                     metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getObject().asResource().getURI().substring(namespace.length())));
+                    metric.setWeight(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getObject().asResource().getURI().substring(namespace.length())));
                     metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getObject().asResource().getURI().substring(namespace.length())));
                     metric.setId(JenaUtils.parseId(metricResource.getURI()));
                     metrics.add(metric);

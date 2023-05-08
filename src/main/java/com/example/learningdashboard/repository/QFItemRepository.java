@@ -67,8 +67,6 @@ public class QFItemRepository {
                     .add(qfItemResource, RDF.type, qfItemClass)
                     .add(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemThreshold"),
                             ResourceFactory.createTypedLiteral(qfItem.getThreshold()))
-                    .add(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemValue"),
-                            ResourceFactory.createTypedLiteral(0.0))
                     .add(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemWeight"),
                             ResourceFactory.createTypedLiteral(qfItem.getWeight()));
 
@@ -104,18 +102,20 @@ public class QFItemRepository {
 
             String qfClassURI = namespace + "QF";
             Resource qfClass = ResourceFactory.createResource(qfClassURI);
-            Resource sourceQF = ResourceFactory.createResource(qfItem.getSourceQF());
+            Resource sourceQF = ResourceFactory.createResource(namespace + qfItem.getSourceQF());
+            System.out.println(qfItem.getSourceQF());
+            System.out.println(qfClassURI);
             if (dataset.getDefaultModel().contains(sourceQF, RDF.type, qfClass)) {
                 dataset.getDefaultModel().add(qfItemResource,
                         ResourceFactory.createProperty(namespace + "sourceQF"),
                         sourceQF);
             } else {
-                throw new IllegalArgumentException("The source SI does not exist in the dataset.");
+                throw new IllegalArgumentException("The source QF does not exist in the dataset.");
             }
 
             String categoryClassURI = namespace + "Category";
             Resource categoryClass = ResourceFactory.createResource(categoryClassURI);
-            Resource sourceCategory = ResourceFactory.createResource(qfItem.getCategory());
+            Resource sourceCategory = ResourceFactory.createResource(namespace + qfItem.getCategory());
             if (dataset.getDefaultModel().contains(sourceCategory, RDF.type, categoryClass)) {
                 dataset.getDefaultModel().add(qfItemResource,
                         ResourceFactory.createProperty(namespace + "QFItemCategory"),
@@ -148,8 +148,8 @@ public class QFItemRepository {
                         qfItem.setThreshold(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemThreshold")).getString()));
                         qfItem.setValue(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getString()));
                         qfItem.setWeight(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getString()));
-                        qfItem.setSourceQF(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceQF")).getString());
-                        qfItem.setCategory(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemCategory")).getString());
+                        qfItem.setSourceQF(qfItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "sourceQF")).getURI());
+                        qfItem.setCategory(qfItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "QFItemCategory")).getURI());
                         qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
                                 .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
                                 .mapWith(Resource::getLocalName).toList());
@@ -248,7 +248,7 @@ public class QFItemRepository {
                     QFItemDto qfItem = new QFItemDto();
                     qfItem.setThreshold(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemThreshold")).getString()));
                     qfItem.setValue(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getString()));
-                    qfItem.setCategory(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemCategory")).getObject().asResource().getURI().substring(namespace.length()));
+                    qfItem.setCategory(qfItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "QFItemCategory")).getURI());
                     qfItem.setWeight(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getString()));
                     qfItem.setSourceQF(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceQF")).getObject().asResource().getURI().substring(namespace.length()));
                     qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))
@@ -279,12 +279,10 @@ public class QFItemRepository {
                 throw new IllegalArgumentException("Project with ID " + projectId + " does not exist in the dataset.");
             }
 
-            // Find all SIItems that belong to the project
-            ResIterator it = model.listResourcesWithProperty(ResourceFactory.createProperty(namespace + "belongsToProject"), projectResource);
+            ResIterator it = model.listResourcesWithProperty(ResourceFactory.createProperty(namespace + "hasHI"), projectResource);
             while (it.hasNext()) {
                 Resource siItemResource = it.next();
 
-                // Find all QFItems that belong to the SIItem
                 StmtIterator it2 = model.listStatements(siItemResource, ResourceFactory.createProperty(namespace + "hasQFI"), (RDFNode) null);
                 while (it2.hasNext()) {
                     Statement stmt = it2.next();
@@ -295,7 +293,7 @@ public class QFItemRepository {
                         QFItemDto qfItem = new QFItemDto();
                         qfItem.setThreshold(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemThreshold")).getString()));
                         qfItem.setValue(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getString()));
-                        qfItem.setCategory(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemCategory")).getObject().asResource().getURI().substring(namespace.length()));
+                        qfItem.setCategory(qfItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "QFItemCategory")).getURI());
                         qfItem.setWeight(Float.parseFloat(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getString()));
                         qfItem.setSourceQF(qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceQF")).getObject().asResource().getURI().substring(namespace.length()));
                         qfItem.setMetrics((ArrayList<String>) qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"))

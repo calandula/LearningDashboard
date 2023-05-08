@@ -1,43 +1,40 @@
 package com.example.learningdashboard.datasource;
 
+import com.example.learningdashboard.dtos.DataSourceDto;
+import com.example.learningdashboard.repository.DataSourceRepository;
 import org.kohsuke.github.*;
-import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Component
 public class GithubDataSource extends DataSource {
-
-    private final RestTemplate restTemplate;
     private final String baseUrl = "https://api.github.com";
-
-    private String repository = "";
-    private String owner = "";
-    private String accessToken = "";
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+    @Autowired
+    private GithubEntitiesRepository githubEntitiesRepository;
+    private String repository;
+    private String owner;
+    private String accessToken;
+    private String datasourceId;
     private static final String ISSUES_OBJECT = "issues";
     private static final String COMMITS_OBJECT = "commits";
 
-    public GithubDataSource(RestTemplateBuilder restTemplateBuilder, String repository, String owner, String accessToken) {
-        this.restTemplate = restTemplateBuilder.build();
-        this.repository = repository;
-        this.owner = owner;
-        this.accessToken = accessToken;
-    }
-
     public GithubDataSource() {
-        this.restTemplate = new RestTemplate();
+
     }
 
-    public void init(String repository, String owner, String accessToken) {
-        this.repository = repository;
-        this.owner = owner;
-        this.accessToken = accessToken;
+    public GithubDataSource(String dataSourceId, DataSourceRepository dataSourceRepository) {
+        DataSourceDto ds = dataSourceRepository.findById(dataSourceId);
+        this.repository = ds.getRepository();
+        this.owner = ds.getOwner();
+        this.accessToken = "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";
     }
+
+
 
     @Override
     public String getName() {
@@ -57,12 +54,12 @@ public class GithubDataSource extends DataSource {
 
         if (ISSUES_OBJECT.equals(objectName)) {
             List<GHIssue> issues = repo.getIssues(GHIssueState.ALL);
-            //insertIssues(issues);
+            githubEntitiesRepository.saveIssues(datasourceId, issues);
             System.out.println(issues);
             return issues;
         } else if (COMMITS_OBJECT.equals(objectName)) {
             List<GHCommit> commits = repo.listCommits().asList();
-            //insertCommits(commits);
+            githubEntitiesRepository.saveCommits(datasourceId, commits);
             System.out.println(commits);
             return commits;
         } else {
@@ -73,13 +70,8 @@ public class GithubDataSource extends DataSource {
     private void insertCommits(List<GHCommit> commits) throws IOException {
         System.out.println(commits);
     }
-
     private void insertIssues(List<GHIssue> issues) {
         System.out.println(issues);
-    }
-
-    public RestTemplate getRestTemplate() {
-        return restTemplate;
     }
 
     public String getBaseUrl() {
@@ -111,21 +103,21 @@ public class GithubDataSource extends DataSource {
     }
 
     public static void main(String[] args) {
-        GithubDataSource githubDataSource = new GithubDataSource(new RestTemplateBuilder(), "LearningDashboard", "calandula", "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");
-
-        try {
-            List<GHIssue> issues = (List<GHIssue>) githubDataSource.retrieveData("issues");
-            System.out.println("Issues: " + issues);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // Retrieve commits from a repository
-        try {
-            List<GHCommit> commits = (List<GHCommit>) githubDataSource.retrieveData("commits");
-            System.out.println("Commits: " + commits);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        GithubDataSource githubDataSource = new GithubDataSource("LearningDashboard", "calandula", "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");
+//
+//        try {
+//            List<GHIssue> issues = (List<GHIssue>) githubDataSource.retrieveData("issues");
+//            System.out.println("Issues: " + issues);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//        // Retrieve commits from a repository
+//        try {
+//            List<GHCommit> commits = (List<GHCommit>) githubDataSource.retrieveData("commits");
+//            System.out.println("Commits: " + commits);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 }

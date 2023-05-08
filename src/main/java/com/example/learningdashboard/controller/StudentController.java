@@ -1,6 +1,7 @@
 package com.example.learningdashboard.controller;
 
 import com.example.learningdashboard.dtos.CategoryItemDto;
+import com.example.learningdashboard.dtos.MembershipDto;
 import com.example.learningdashboard.dtos.StudentDto;
 import com.example.learningdashboard.service.CategoryItemService;
 import com.example.learningdashboard.service.StudentService;
@@ -22,6 +23,12 @@ public class StudentController {
     public ResponseEntity<StudentDto> createStudent(@RequestBody StudentDto student) {
         StudentDto savedStudent = studentService.createStudent(student);
         return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
+    }
+
+    @PostMapping("{id}/membership")
+    public ResponseEntity<MembershipDto> createMembership(@PathVariable("id") String studentId, @RequestBody MembershipDto membership) {
+        MembershipDto savedMembership = studentService.createMembership(studentId, membership);
+        return new ResponseEntity<>(savedMembership, HttpStatus.CREATED);
     }
 
     @GetMapping
