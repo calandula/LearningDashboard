@@ -5,6 +5,7 @@ import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
+import org.apache.jena.sparql.exec.RowSet;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -59,14 +60,16 @@ public class DataSourceRepository {
                 RDFNode object = statement.getObject();
 
                 if (object.isResource()) {
+                    dataset.commit();
                     return object.asResource().getURI().replace(namespace, "");
                 }
             }
-        } finally {
-            dataset.end();
+            dataset.commit();
+            return null;
         }
-
-        return null;
+        catch (Exception e) {
+            throw e;
+        }
     }
 
     public DataSourceDto findById(String dsId) {

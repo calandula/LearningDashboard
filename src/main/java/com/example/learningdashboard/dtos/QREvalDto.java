@@ -6,18 +6,19 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Map;
-
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DataRetrievalDto {
+public class QREvalDto {
 
     @NotBlank
     private String dsId;
 
     @NotBlank
-    private String objectName;
+    private String metricId;
+
+    @NotBlank
+    private String method;
 
 }

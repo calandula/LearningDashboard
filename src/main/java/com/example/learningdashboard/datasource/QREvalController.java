@@ -1,22 +1,21 @@
 package com.example.learningdashboard.datasource;
 
-import com.example.learningdashboard.datasource.DataSource;
-import com.example.learningdashboard.datasource.DataSourceFactory;
-import com.example.learningdashboard.dtos.DataRetrievalDto;
+
+import com.example.learningdashboard.dtos.QREvalDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
+import com.example.learningdashboard.repository.MetricRepository;
 import org.apache.jena.query.Dataset;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
 @RequestMapping("api/qreval")
 public class QREvalController {
 
     private final DataSourceFactory dataSourceFactory;
+
 
     @Autowired
     private Dataset dataset;
@@ -25,38 +24,46 @@ public class QREvalController {
     private String namespace;
 
     @Autowired
+    private MetricRepository metricRepository;
+
+    @Autowired
     private DataSourceRepository dataSourceRepository;
+
+    @Autowired
+    private GithubEntitiesRepository githubEntitiesRepository;
 
     public QREvalController(DataSourceFactory dataSourceFactory) {
         this.dataSourceFactory = dataSourceFactory;
     }
 
-    @GetMapping("/retrieve")
-    public ResponseEntity<Object> retrieveData(@RequestBody DataRetrievalDto request) {
+    @GetMapping("/eval")
+    public ResponseEntity<Object> retrieveData(@RequestBody QREvalDto request) {
         String dataSourceId = request.getDsId();
-        String objectName = request.getObjectName();
+        String method = request.getMethod();
+        String metricId = request.getMetricId();
 
         String dataSourceClassName = dataSourceRepository.getClass(dataSourceId);
         if (dataSourceClassName == null) {
             return ResponseEntity.badRequest().body("Invalid data source ID");
         }
 
-        DataSource dataSource = dataSourceFactory.getDataSource(dataSourceClassName, dataSourceId, dataSourceRepository);
+        float newValue = 0.0f;
 
-        if (dataSource == null) {
-            return ResponseEntity.badRequest().body("Invalid data source class name");
+        System.out.println(dataSourceClassName);
+        switch (dataSourceClassName) {
+            case "DataSource", "GitHubDataSource":
+                if (githubEntitiesRepository.supportsMethod(method)) {
+                    newValue = githubEntitiesRepository.computeMetric(dataSourceId, method);
+                }
+            case "TaigaDataSource":
+                if (githubEntitiesRepository.supportsMethod(method)) {
+                    newValue = githubEntitiesRepository.computeMetric(dataSourceId, method);
+                }
         }
 
-        if (!dataSource.supportsObject(objectName)) {
-            return ResponseEntity.badRequest().body("Invalid object name for the selected data source");
-        }
+        metricRepository.updateValue(newValue, metricId);
 
-        try {
-            Object data = dataSource.retrieveData(objectName);
-            return ResponseEntity.ok().body("data retrieved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        return ResponseEntity.badRequest().body(1);
     }
 }
 

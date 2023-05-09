@@ -1,18 +1,13 @@
 package com.example.learningdashboard.datasource;
 
-import com.example.learningdashboard.datasource.DataSource;
-import com.example.learningdashboard.datasource.DataSourceFactory;
-import com.example.learningdashboard.datasource.GithubDataSource;
-import com.example.learningdashboard.dtos.DataRetrievalDto;
+import com.example.learningdashboard.dtos.QRConnectDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import org.apache.jena.query.Dataset;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 
 @RestController
 @RequestMapping("api/qrconnect")
@@ -29,12 +24,15 @@ public class QRConnectController {
     @Autowired
     private DataSourceRepository dataSourceRepository;
 
+    @Autowired
+    private GithubEntitiesRepository githubEntitiesRepository;
+
     public QRConnectController(DataSourceFactory dataSourceFactory) {
         this.dataSourceFactory = dataSourceFactory;
     }
 
-    @GetMapping("/retrieve")
-    public ResponseEntity<Object> retrieveData(@RequestBody DataRetrievalDto request) {
+    @GetMapping("/connect")
+    public ResponseEntity<Object> retrieveData(@RequestBody QRConnectDto request) throws IOException {
         String dataSourceId = request.getDsId();
         String objectName = request.getObjectName();
 
@@ -43,7 +41,7 @@ public class QRConnectController {
             return ResponseEntity.badRequest().body("Invalid data source ID");
         }
 
-        DataSource dataSource = dataSourceFactory.getDataSource(dataSourceClassName, dataSourceId, dataSourceRepository);
+        /*DataSource dataSource = dataSourceFactory.getDataSource(dataSourceClassName, dataSourceId);
 
         if (dataSource == null) {
             return ResponseEntity.badRequest().body("Invalid data source class name");
@@ -58,6 +56,22 @@ public class QRConnectController {
             return ResponseEntity.ok().body("data retrieved successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }*/
+        switch (dataSourceClassName) {
+            case "DataSource", "GitHubDataSource":
+                if (githubEntitiesRepository.supportsObject(objectName)) {
+                    try {
+                        githubEntitiesRepository.retrieveData(objectName, dataSourceId);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return null;
+                }
+            case "TaigaDataSource":
+                githubEntitiesRepository.retrieveData(objectName, dataSourceId);
+                return null;
+        }
+
+        return ResponseEntity.ok().body("data retrieved successfully");
         }
     }
-}

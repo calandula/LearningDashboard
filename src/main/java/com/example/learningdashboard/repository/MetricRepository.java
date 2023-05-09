@@ -189,4 +189,83 @@ public class MetricRepository {
             throw e;
         }
     }
+
+    public void updateValue(float newValue, String metricId) {
+
+        String metricURI = namespace + metricId;
+        Resource metricResource = ResourceFactory.createResource(metricURI);
+
+        dataset.begin(ReadWrite.WRITE);
+        try {
+            // update metric value
+            Model model = dataset.getDefaultModel();
+            if (!model.containsResource(metricResource)) {
+                throw new IllegalArgumentException("Metric with ID " + metricId + " does not exist in the dataset.");
+            }
+            model.removeAll(metricResource, ResourceFactory.createProperty(namespace + "metricValue"), null);
+            model.add(metricResource, ResourceFactory.createProperty(namespace + "metricValue"),
+                    ResourceFactory.createTypedLiteral(newValue));
+
+            System.out.println("----------------------------------");
+            System.out.println("Metric assigned value: " + newValue);
+            System.out.println("----------------------------------");
+
+            // update QFItem values
+            List<Resource> updatedQFItems = new ArrayList<>();
+            ResIterator qfItemIter = model.listSubjectsWithProperty(ResourceFactory.createProperty(namespace + "hasMetric"), metricResource);
+            while (qfItemIter.hasNext()) {
+                Resource qfItemResource = qfItemIter.next();
+                float qfItemValue = 0.0f;
+                StmtIterator stmtIter = qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"));
+                while (stmtIter.hasNext()) {
+                    Statement stmt = stmtIter.next();
+                    Resource m = stmt.getObject().asResource();
+                    float metricValue = m.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getFloat();
+                    float metricWeight = m.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getFloat();
+                    qfItemValue += metricValue * metricWeight;
+                    System.out.println("value: " + metricValue);
+                    System.out.println("weight: " + metricWeight);
+                }
+                System.out.println("----------------------------------");
+                System.out.println("QFItem assigned value: " + qfItemValue);
+                System.out.println("----------------------------------");
+                qfItemResource.removeAll(ResourceFactory.createProperty(namespace + "QFItemValue"));
+                qfItemResource.addLiteral(ResourceFactory.createProperty(namespace + "QFItemValue"), qfItemValue);
+                updatedQFItems.add(qfItemResource);
+            }
+
+            // update connected SIItems
+            for (Resource qfItem : updatedQFItems) {
+                StmtIterator stmtIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasQFItem"), qfItem);
+                while (stmtIter.hasNext()) {
+                    Statement stmt = stmtIter.next();
+                    Resource siItemResource = stmt.getSubject();
+                    float siItemValue = 0.0f;
+                    StmtIterator stmtIter2 = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFItem"));
+                    while (stmtIter2.hasNext()) {
+                        Statement stmt2 = stmtIter2.next();
+                        Resource qfItemResource = stmt2.getObject().asResource();
+                        float qfItemValue = qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getFloat();
+                        float qfItemWeight = qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getFloat();
+                        siItemValue += qfItemValue * qfItemWeight;
+                        System.out.println("value: " + qfItemValue);
+                        System.out.println("weight: " + qfItemWeight);
+                    }
+
+                    System.out.println("----------------------------------");
+                    System.out.println("SIItem assigned value: " + siItemValue);
+                    System.out.println("----------------------------------");
+
+                    siItemResource.removeAll(ResourceFactory.createProperty(namespace + "SIItemValue"));
+                    siItemResource.addLiteral(ResourceFactory.createProperty(namespace + "SIItemValue"), siItemValue);
+                }
+            }
+
+            dataset.commit();
+
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
 }

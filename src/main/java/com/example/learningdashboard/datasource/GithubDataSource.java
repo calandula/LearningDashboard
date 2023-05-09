@@ -27,7 +27,7 @@ public class GithubDataSource extends DataSource {
 
     }
 
-    public GithubDataSource(String dataSourceId, DataSourceRepository dataSourceRepository) {
+    public GithubDataSource(String dataSourceId) {
         DataSourceDto ds = dataSourceRepository.findById(dataSourceId);
         this.repository = ds.getRepository();
         this.owner = ds.getOwner();
