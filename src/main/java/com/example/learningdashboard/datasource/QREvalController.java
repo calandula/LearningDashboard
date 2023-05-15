@@ -3,11 +3,14 @@ package com.example.learningdashboard.datasource;
 
 import com.example.learningdashboard.dtos.QREvalDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
-import com.example.learningdashboard.repository.MetricRepository;
+import com.example.learningdashboard.repository.MetricItemRepository;
 import org.apache.jena.query.Dataset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
@@ -24,7 +27,7 @@ public class QREvalController {
     private String namespace;
 
     @Autowired
-    private MetricRepository metricRepository;
+    private MetricItemRepository metricRepository;
 
     @Autowired
     private DataSourceRepository dataSourceRepository;

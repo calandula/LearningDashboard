@@ -1,6 +1,5 @@
 package com.example.learningdashboard.repository;
 
-import com.example.learningdashboard.dtos.IterationDto;
 import com.example.learningdashboard.dtos.SIItemDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
@@ -10,7 +9,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +26,8 @@ public class SIItemRepository {
     private String namespace;
 
     public SIItemDto save(SIItemDto siItem, String siItemId) {
-        String siItemURI = siItemId == null ? namespace + UUID.randomUUID().toString() : siItemId;
+        siItemId = siItemId == null ? UUID.randomUUID().toString() : siItemId;
+        String siItemURI = namespace + siItemId;
         Resource siItemResource = ResourceFactory.createResource(siItemURI);
         Resource siItemClass = ResourceFactory.createResource(namespace + "SIItem");
         dataset.begin(ReadWrite.WRITE);
@@ -128,7 +127,8 @@ public class SIItemRepository {
 
 
             dataset.commit();
-            return null;
+            siItem.setId(siItemId);
+            return siItem;
         } catch (Exception e) {
             dataset.abort();
             throw e;

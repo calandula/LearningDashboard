@@ -11,15 +11,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DataSourceDto {
-
     private String id;
-
     @NotBlank
     private String repository;
-
     @NotBlank
     private String owner;
-
     @NotBlank
     private String accessToken;
 }

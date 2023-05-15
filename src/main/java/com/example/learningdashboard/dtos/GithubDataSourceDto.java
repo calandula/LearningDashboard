@@ -11,12 +11,9 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GithubDataSourceDto {
-
     private String id;
-
     @NotBlank
     private String repository;
-
     @NotBlank
     private String owner;
 }

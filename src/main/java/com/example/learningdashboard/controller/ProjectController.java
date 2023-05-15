@@ -34,6 +34,12 @@ public class ProjectController {
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
+    @GetMapping("/product/{id}")
+    public ResponseEntity<List<ProjectDto>> getProjectsByProduct(@PathVariable("id") String productId) {
+        List<ProjectDto> projects = projectService.getProjectsByProduct(productId);
+        return new ResponseEntity<>(projects, HttpStatus.OK);
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable("id") String projectId) {
         projectService.deleteProjectById(projectId);

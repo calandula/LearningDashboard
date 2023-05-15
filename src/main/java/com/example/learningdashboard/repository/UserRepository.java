@@ -8,7 +8,6 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,8 @@ public class UserRepository {
     private String namespace;
 
     public UserDto save(UserDto user, String userId) {
-        String userURI = userId == null ? namespace + UUID.randomUUID().toString() : userId;
+        userId = userId == null ? UUID.randomUUID().toString() : userId;
+        String userURI = namespace + userId;
         Resource userResource = ResourceFactory.createResource(userURI);
         Resource userClass = ResourceFactory.createResource(namespace + "User");
         dataset.begin(ReadWrite.WRITE);
@@ -48,7 +48,8 @@ public class UserRepository {
                             ResourceFactory.createPlainLiteral(user.getPassword()));
 
             dataset.commit();
-            return null;
+            user.setId(userId);
+            return user;
         } catch (Exception e) {
             dataset.abort();
             throw e;

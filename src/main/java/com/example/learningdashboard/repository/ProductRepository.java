@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.learningdashboard.utils.JenaUtils.getPropertyList;
+import static com.example.learningdashboard.utils.JenaUtils.getPropertyString;
+
 @Repository
 public class ProductRepository {
 
@@ -26,26 +29,39 @@ public class ProductRepository {
     private String namespace;
 
     public ProductDto save(ProductDto product, String productId) {
-        String productURI = productId == null ? namespace + UUID.randomUUID().toString() : productId;
+        productId = productId == null ? UUID.randomUUID().toString() : productId;
+        String productURI = namespace + productId;
         Resource productResource = ResourceFactory.createResource(productURI);
         Resource productClass = ResourceFactory.createResource(namespace + "Product");
         dataset.begin(ReadWrite.WRITE);
         try {
-            List<Resource> projectResources = product.getProjects().stream()
-                    .map(projectId -> ResourceFactory.createResource(namespace + projectId))
-                    .filter(projectResource -> dataset.getDefaultModel().containsResource(projectResource))
-                    .toList();
-            if (projectResources.size() != product.getProjects().size()) {
-                throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
+            List<Resource> projectResources = new ArrayList<>();
+            if (product.getProjects() != null) {
+                projectResources = product.getProjects().stream()
+                        .map(projectId -> ResourceFactory.createResource(namespace + projectId))
+                        .filter(projectResource -> dataset.getDefaultModel().containsResource(projectResource))
+                        .toList();
+                if (projectResources.size() != product.getProjects().size()) {
+                    throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
+                }
             }
+
             dataset.getDefaultModel()
                     .add(productResource, RDF.type, productClass)
                     .add(productResource, ResourceFactory.createProperty(namespace + "productName"),
-                            ResourceFactory.createPlainLiteral(product.getName()))
-                    .add(productResource, ResourceFactory.createProperty(namespace + "productDescription"),
-                            ResourceFactory.createPlainLiteral(product.getDescription()))
-                    .add(productResource, ResourceFactory.createProperty(namespace + "productLogo"),
-                            ResourceFactory.createPlainLiteral(product.getLogo()));
+                            ResourceFactory.createPlainLiteral(product.getName()));
+
+            if (product.getDescription() != null) {
+                dataset.getDefaultModel()
+                        .add(productResource, ResourceFactory.createProperty(namespace + "productDescription"),
+                                ResourceFactory.createPlainLiteral(product.getDescription()));
+            }
+
+            if (product.getLogo() != null) {
+                dataset.getDefaultModel()
+                        .add(productResource, ResourceFactory.createProperty(namespace + "productLogo"),
+                                ResourceFactory.createPlainLiteral(product.getLogo()));
+            }
 
             projectResources.forEach(projectResource ->
                     dataset.getDefaultModel().add(productResource,
@@ -53,7 +69,8 @@ public class ProductRepository {
                             projectResource));
 
             dataset.commit();
-            return null;
+            product.setId(productId);
+            return product;
         } catch (Exception e) {
             dataset.abort();
             throw e;
@@ -64,24 +81,31 @@ public class ProductRepository {
         List<ProductDto> products = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
-            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Product"))
-                    .forEachRemaining(productResource -> {
-                        ProductDto product = new ProductDto();
-                        product.setName(productResource.getProperty(ResourceFactory.createProperty(namespace + "productName")).getString());
-                        product.setDescription(productResource.getProperty(ResourceFactory.createProperty(namespace + "productDescription")).getString());
-                        product.setLogo(productResource.getProperty(ResourceFactory.createProperty(namespace + "productLogo")).getString());
-                        product.setProjects((ArrayList<String>) productResource.listProperties(ResourceFactory.createProperty(namespace + "hasProject"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
-                        product.setId(JenaUtils.parseId(productResource.getURI()));
-                        products.add(product);
-                    });
+            Model model = dataset.getDefaultModel();
+            String productNamePropertyURI = namespace + "productName";
+            String productDescriptionPropertyURI = namespace + "productDescription";
+            String productLogoPropertyURI = namespace + "productLogo";
+            String hasProjectPropertyURI = namespace + "hasProject";
+
+            ResIterator iterator = model.listResourcesWithProperty(RDF.type, model.createResource(namespace + "Product"));
+            while (iterator.hasNext()) {
+                Resource productResource = iterator.next();
+                ProductDto product = new ProductDto();
+                product.setName(getPropertyString(productResource, productNamePropertyURI));
+                product.setDescription(getPropertyString(productResource, productDescriptionPropertyURI));
+                product.setLogo(getPropertyString(productResource, productLogoPropertyURI));
+                product.setProjects((ArrayList<String>) getPropertyList(productResource, hasProjectPropertyURI));
+                product.setId(JenaUtils.parseId(productResource.getURI()));
+                products.add(product);
+            }
 
             dataset.commit();
             return products;
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 
@@ -96,22 +120,18 @@ public class ProductRepository {
                 return null;
             }
 
-            String productName = model.getProperty(productResource, model.createProperty(namespace + "productName"))
-                    .getString();
-            String productDescription = model
-                    .getProperty(productResource, model.createProperty(namespace + "productDescription")).getString();
-            String productLogo = model.getProperty(productResource, model.createProperty(namespace + "productLogo"))
-                    .getString();
-            List<String> projectIds = model.listObjectsOfProperty(productResource, model.createProperty(namespace + "hasProject"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
+            String productNamePropertyURI = namespace + "productName";
+            String productDescriptionPropertyURI = namespace + "productDescription";
+            String productLogoPropertyURI = namespace + "productLogo";
+            String hasProjectPropertyURI = namespace + "hasProject";
 
             ProductDto product = new ProductDto();
-            product.setName(productName);
-            product.setDescription(productDescription);
-            product.setLogo(productLogo);
-            product.setProjects((ArrayList<String>) projectIds);
+            product.setName(getPropertyString(productResource, productNamePropertyURI));
+            product.setDescription(getPropertyString(productResource, productDescriptionPropertyURI));
+            product.setLogo(getPropertyString(productResource, productLogoPropertyURI));
+            product.setProjects((ArrayList<String>) getPropertyList(productResource, hasProjectPropertyURI));
             product.setId(JenaUtils.parseId(productResource.getURI()));
+
             return product;
         } finally {
             dataset.end();

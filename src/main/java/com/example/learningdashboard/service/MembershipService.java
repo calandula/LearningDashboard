@@ -1,9 +1,7 @@
 package com.example.learningdashboard.service;
 
 import com.example.learningdashboard.dtos.MembershipDto;
-import com.example.learningdashboard.dtos.StudentDto;
 import com.example.learningdashboard.repository.MembershipRepository;
-import com.example.learningdashboard.repository.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;

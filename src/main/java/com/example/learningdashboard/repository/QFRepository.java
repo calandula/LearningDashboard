@@ -1,6 +1,5 @@
 package com.example.learningdashboard.repository;
 
-import com.example.learningdashboard.dtos.IterationDto;
 import com.example.learningdashboard.dtos.QFDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
@@ -10,7 +9,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -28,7 +26,8 @@ public class QFRepository {
     private String namespace;
 
     public QFDto save(QFDto qf, String qfId) {
-        String qfURI = qfId == null ? namespace + UUID.randomUUID().toString() : qfId;
+        qfId = qfId == null ? UUID.randomUUID().toString() : qfId;
+        String qfURI = namespace + qfId;
         Resource qfResource = ResourceFactory.createResource(qfURI);
         Resource qfClass = ResourceFactory.createResource(namespace + "QF");
         dataset.begin(ReadWrite.WRITE);
@@ -44,7 +43,8 @@ public class QFRepository {
 
 
             dataset.commit();
-            return null;
+            qf.setId(qfId);
+            return qf;
         } catch (Exception e) {
             dataset.abort();
             throw e;

@@ -76,7 +76,8 @@ public class StudentRepository {
     }
 
     public StudentDto save(StudentDto student, String studentId) {
-        String studentURI = studentId == null ? namespace + UUID.randomUUID().toString() : studentId;
+        studentId = studentId == null ? UUID.randomUUID().toString() : studentId;
+        String studentURI = namespace + studentId;
         Resource studentResource = ResourceFactory.createResource(studentURI);
         Resource studentClass = ResourceFactory.createResource(namespace + "Student");
         dataset.begin(ReadWrite.WRITE);
@@ -102,7 +103,8 @@ public class StudentRepository {
                             ResourceFactory.createPlainLiteral(student.getName()));
 
             dataset.commit();
-            return null;
+            student.setId(studentId);
+            return student;
         } catch (Exception e) {
             dataset.abort();
             throw e;

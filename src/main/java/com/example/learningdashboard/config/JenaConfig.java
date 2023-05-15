@@ -3,15 +3,11 @@ package com.example.learningdashboard.config;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.tdb.TDBFactory;
-import org.apache.jena.tdb.transaction.Transaction;
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
-import java.io.InputStream;
 
 @Configuration
 public class JenaConfig {
@@ -53,21 +49,6 @@ public class JenaConfig {
             // TDB directory already exists, return the existing dataset
             return TDBFactory.createDataset(TDB_DIRECTORY);
         }
-    }
-
-    @Bean
-    public Model ontModel() {
-        Model ontModel = ModelFactory.createDefaultModel();
-        InputStream entitiesStream = getClass().getClassLoader().getResourceAsStream(ENTITIES_FILE);
-        InputStream ontologyStream = getClass().getClassLoader().getResourceAsStream(ONTOLOGY_FILE);
-        ontModel.read(entitiesStream, null, "RDF/XML");
-        ontModel.read(ontologyStream, null, "RDF/XML");
-        return ontModel;
-    }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
     }
 
 }

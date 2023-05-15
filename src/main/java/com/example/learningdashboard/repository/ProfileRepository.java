@@ -13,6 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.learningdashboard.utils.JenaUtils.getPropertyList;
+import static com.example.learningdashboard.utils.JenaUtils.getPropertyString;
+
 @Repository
 public class ProfileRepository {
 
@@ -26,7 +29,8 @@ public class ProfileRepository {
     private String namespace;
 
     public ProfileDto save(ProfileDto profile, String profileId) {
-        String profileURI = profileId == null ? namespace + UUID.randomUUID().toString() : profileId;
+        profileId = profileId == null ? UUID.randomUUID().toString() : profileId;
+        String profileURI = namespace + profileId;
         Resource profileResource = ResourceFactory.createResource(profileURI);
         Resource profileClass = ResourceFactory.createResource(namespace + "Profile");
         dataset.begin(ReadWrite.WRITE);
@@ -39,20 +43,10 @@ public class ProfileRepository {
                 throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
             }
 
-            List<Resource> siResources = profile.getAllowedStrategicIndicators().stream()
-                    .map(siId -> ResourceFactory.createResource(namespace + siId))
-                    .filter(siResource -> dataset.getDefaultModel().containsResource(siResource))
-                    .toList();
-            if (projectResources.size() != profile.getAllowedStrategicIndicators().size()) {
-                throw new IllegalArgumentException("One or more SI IDs do not exist in the dataset.");
-            }
-
             dataset.getDefaultModel()
                     .add(profileResource, RDF.type, profileClass)
                     .add(profileResource, ResourceFactory.createProperty(namespace + "profileName"),
                             ResourceFactory.createPlainLiteral(profile.getName()))
-                    .add(profileResource, ResourceFactory.createProperty(namespace + "profileDescription"),
-                            ResourceFactory.createPlainLiteral(profile.getDescription()))
                     .add(profileResource, ResourceFactory.createProperty(namespace + "profileQualityLevel"),
                             ResourceFactory.createTypedLiteral(profile.getQualityLevel()))
                     .add(profileResource, ResourceFactory.createProperty(namespace + "profileDetailedSIView"),
@@ -64,20 +58,35 @@ public class ProfileRepository {
                     .add(profileResource, ResourceFactory.createProperty(namespace + "profileQMView"),
                             ResourceFactory.createTypedLiteral(profile.getQualityModelsView()));
 
-
+            if (profile.getDescription() != null) {
+                dataset.getDefaultModel().add(profileResource,
+                        ResourceFactory.createProperty(namespace + "profileDescription"),
+                        ResourceFactory.createPlainLiteral(profile.getDescription()));
+            }
 
             projectResources.forEach(projectResource ->
                     dataset.getDefaultModel().add(profileResource,
                             ResourceFactory.createProperty(namespace + "allowedProject"),
                             projectResource));
 
-            siResources.forEach(siResource ->
-                    dataset.getDefaultModel().add(profileResource,
-                            ResourceFactory.createProperty(namespace + "allowedSI"),
-                            siResource));
+            if (profile.getAllowedStrategicIndicators() != null) {
+                List<Resource> siResources = profile.getAllowedStrategicIndicators().stream()
+                        .map(siId -> ResourceFactory.createResource(namespace + siId))
+                        .filter(siResource -> dataset.getDefaultModel().containsResource(siResource))
+                        .toList();
+                if (siResources.size() != profile.getAllowedStrategicIndicators().size()) {
+                    throw new IllegalArgumentException("One or more SI IDs do not exist in the dataset.");
+                }
+
+                siResources.forEach(siResource ->
+                        dataset.getDefaultModel().add(profileResource,
+                                ResourceFactory.createProperty(namespace + "allowedSI"),
+                                siResource));
+            }
 
             dataset.commit();
-            return null;
+            profile.setId(profileId);
+            return profile;
         } catch (Exception e) {
             dataset.abort();
             throw e;
@@ -88,26 +97,23 @@ public class ProfileRepository {
         List<ProfileDto> profiles = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
-            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Profile"))
-                    .forEachRemaining(profileResource -> {
-                        ProfileDto profile = new ProfileDto();
-                        profile.setName(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileName")).getString());
-                        profile.setDescription(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileDescription")).getString());
-                        profile.setQualityLevel(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileQualityLevel")).getString());
-                        profile.setDetailedStrategicIndicatorsView(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileDetailedSIView")).getString());
-                        profile.setDetailedFactorsView(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileDetailedFView")).getString());
-                        profile.setMetricsView(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileMetricsView")).getString());
-                        profile.setQualityModelsView(profileResource.getProperty(ResourceFactory.createProperty(namespace + "profileQMView")).getString());
-                        profile.setAllowedProjects((ArrayList<String>) profileResource.listProperties(ResourceFactory.createProperty(namespace + "allowedProject"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
-                        profile.setAllowedStrategicIndicators((ArrayList<String>) profileResource.listProperties(ResourceFactory.createProperty(namespace + "allowedSI"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
-                        profile.setId(JenaUtils.parseId(profileResource.getURI()));
-                        profiles.add(profile);
-                    });
-
+            Model model = dataset.getDefaultModel();
+            ResIterator profileResources = model.listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Profile"));
+            while (profileResources.hasNext()) {
+                Resource profileResource = profileResources.next();
+                ProfileDto profile = new ProfileDto();
+                profile.setName(getPropertyString(profileResource, "profileName"));
+                profile.setDescription(getPropertyString(profileResource, "profileDescription"));
+                profile.setQualityLevel(getPropertyString(profileResource, "profileQualityLevel"));
+                profile.setDetailedStrategicIndicatorsView(getPropertyString(profileResource, "profileDetailedSIView"));
+                profile.setDetailedFactorsView(getPropertyString(profileResource, "profileDetailedFView"));
+                profile.setMetricsView(getPropertyString(profileResource, "profileMetricsView"));
+                profile.setQualityModelsView(getPropertyString(profileResource, "profileQMView"));
+                profile.setAllowedProjects((ArrayList<String>) getPropertyList(profileResource, "allowedProject"));
+                profile.setAllowedStrategicIndicators((ArrayList<String>) getPropertyList(profileResource, "allowedSI"));
+                profile.setId(JenaUtils.parseId(profileResource.getURI()));
+                profiles.add(profile);
+            }
             dataset.commit();
             return profiles;
         } catch (Exception e) {
@@ -122,48 +128,26 @@ public class ProfileRepository {
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
-
             if (!model.containsResource(profileResource)) {
                 return null;
             }
-
-            String profileName = model.getProperty(profileResource, model.createProperty(namespace + "profileName"))
-                    .getString();
-            String profileDescription = model.getProperty(profileResource, model.createProperty(namespace + "profileDescription"))
-                    .getString();
-            String profileQualityLevel = model.getProperty(profileResource, model.createProperty(namespace + "profileQualityLevel"))
-                    .getString();
-            String profileDetailedSIView = model.getProperty(profileResource, model.createProperty(namespace + "profileDetailedSIView"))
-                    .getString();
-            String profileDetailedFView = model.getProperty(profileResource, model.createProperty(namespace + "profileDetailedFView"))
-                    .getString();
-            String profileMetricsView = model.getProperty(profileResource, model.createProperty(namespace + "profileMetricsView"))
-                    .getString();
-            String profileQMView = model.getProperty(profileResource, model.createProperty(namespace + "profileQMView"))
-                    .getString();
-            List<String> allowedProjects = model.listObjectsOfProperty(profileResource, model.createProperty(namespace + "allowedProject"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
-            List<String> allowedSIs = model.listObjectsOfProperty(profileResource, model.createProperty(namespace + "allowedSI"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
-
             ProfileDto profile = new ProfileDto();
-            profile.setName(profileName);
-            profile.setDescription(profileDescription);
-            profile.setQualityLevel(profileQualityLevel);
-            profile.setDetailedStrategicIndicatorsView(profileDetailedSIView);
-            profile.setDetailedFactorsView(profileDetailedFView);
-            profile.setMetricsView(profileMetricsView);
-            profile.setQualityModelsView(profileQMView);
-            profile.setAllowedProjects((ArrayList<String>) allowedProjects);
-            profile.setAllowedStrategicIndicators((ArrayList<String>) allowedSIs);
+            profile.setName(getPropertyString(profileResource, "profileName"));
+            profile.setDescription(getPropertyString(profileResource, "profileDescription"));
+            profile.setQualityLevel(getPropertyString(profileResource, "profileQualityLevel"));
+            profile.setDetailedStrategicIndicatorsView(getPropertyString(profileResource, "profileDetailedSIView"));
+            profile.setDetailedFactorsView(getPropertyString(profileResource, "profileDetailedFView"));
+            profile.setMetricsView(getPropertyString(profileResource, "profileMetricsView"));
+            profile.setQualityModelsView(getPropertyString(profileResource, "profileQMView"));
+            profile.setAllowedProjects((ArrayList<String>) getPropertyList(profileResource, "allowedProject"));
+            profile.setAllowedStrategicIndicators((ArrayList<String>) getPropertyList(profileResource, "allowedSI"));
             profile.setId(JenaUtils.parseId(profileResource.getURI()));
             return profile;
         } finally {
             dataset.end();
         }
     }
+
 
     public void deleteById(String profileId, boolean update) {
         String profileURI = namespace + profileId;

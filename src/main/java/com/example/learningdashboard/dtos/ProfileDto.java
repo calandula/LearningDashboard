@@ -15,27 +15,16 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProfileDto {
-
     private String id;
     @NotBlank
     private String name;
-
-    @NotBlank
     private String description;
-
     private String qualityLevel = "All";
-
     @NotEmpty
     private ArrayList<String> allowedProjects;
-
-    @NotEmpty
     private ArrayList<String> allowedStrategicIndicators;
-
     private String detailedStrategicIndicatorsView = "Radar";
-
     private String detailedFactorsView = "Radar";
-
     private String metricsView = "Gauge";
-
     private String qualityModelsView = "Graph";
 }

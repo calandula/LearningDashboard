@@ -27,40 +27,54 @@ public class IterationRepository {
     private String namespace;
 
     public IterationDto save(IterationDto iteration, String iterationId) {
-        String iterationURI = iterationId == null ? namespace + UUID.randomUUID().toString() : iterationId;
+        iterationId = iterationId == null ? UUID.randomUUID().toString() : iterationId;
+        String iterationURI = namespace + iterationId;
         Resource iterationResource = ResourceFactory.createResource(iterationURI);
         Resource iterationClass = ResourceFactory.createResource(namespace + "Iteration");
+
         dataset.begin(ReadWrite.WRITE);
         try {
-            List<Resource> projectResources = iteration.getAssociatedProjects().stream()
-                    .map(projectId -> ResourceFactory.createResource(namespace + projectId))
-                    .filter(projectResource -> dataset.getDefaultModel().containsResource(projectResource))
-                    .toList();
-            if (projectResources.size() != iteration.getAssociatedProjects().size()) {
+            List<String> associatedProjects = iteration.getAssociatedProjects();
+            if (associatedProjects == null) {
+                associatedProjects = new ArrayList<>();
+            }
+
+            Model model = dataset.getDefaultModel();
+
+            boolean allProjectsExist = associatedProjects.stream()
+                    .allMatch(projectId -> model.containsResource(ResourceFactory.createResource(namespace + projectId)));
+
+            if (!allProjectsExist) {
                 throw new IllegalArgumentException("One or more project IDs do not exist in the dataset.");
             }
-            dataset.getDefaultModel()
-                    .add(iterationResource, RDF.type, iterationClass)
+
+            model.add(iterationResource, RDF.type, iterationClass)
                     .add(iterationResource, ResourceFactory.createProperty(namespace + "iterationName"),
-                            ResourceFactory.createPlainLiteral(iteration.getName()))
-                    .add(iterationResource, ResourceFactory.createProperty(namespace + "iterationSubject"),
-                            ResourceFactory.createPlainLiteral(iteration.getSubject()))
-                    .add(iterationResource, ResourceFactory.createProperty(namespace + "iterationFrom"),
-                            ResourceFactory.createTypedLiteral(iteration.getFrom()))
-                    .add(iterationResource, ResourceFactory.createProperty(namespace + "iterationTo"),
-                            ResourceFactory.createTypedLiteral(iteration.getTo()));
+                            ResourceFactory.createPlainLiteral(iteration.getName()));
+            model.add(iterationResource, ResourceFactory.createProperty(namespace + "iterationFrom"),
+                    ResourceFactory.createTypedLiteral(iteration.getFrom().toString()));
+            model.add(iterationResource, ResourceFactory.createProperty(namespace + "iterationTo"),
+                    ResourceFactory.createTypedLiteral(iteration.getTo().toString()));
 
+            if (iteration.getSubject() != null) {
+                model.add(iterationResource, ResourceFactory.createProperty(namespace + "iterationSubject"),
+                        ResourceFactory.createPlainLiteral(iteration.getSubject()));
+            }
 
-            projectResources.forEach(projectResource ->
-                    dataset.getDefaultModel().add(iterationResource,
-                            ResourceFactory.createProperty(namespace + "associatedProject"),
-                            projectResource));
+            associatedProjects.forEach(projectId -> {
+                Resource projectResource = ResourceFactory.createResource(namespace + projectId);
+                model.add(iterationResource, ResourceFactory.createProperty(namespace + "associatedProject"), projectResource);
+            });
 
             dataset.commit();
-            return null;
+
+            iteration.setId(iterationId);
+            return iteration;
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 
@@ -68,11 +82,18 @@ public class IterationRepository {
         List<IterationDto> iterations = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
-            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Iteration"))
+            Model model = dataset.getDefaultModel();
+
+            model.listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Iteration"))
                     .forEachRemaining(iterationResource -> {
                         IterationDto iteration = new IterationDto();
                         iteration.setName(iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationName")).getString());
-                        iteration.setSubject(iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationSubject")).getString());
+
+                        Statement subjectStatement = iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationSubject"));
+                        if (subjectStatement != null) {
+                            iteration.setSubject(subjectStatement.getString());
+                        }
+
                         iteration.setFrom(LocalDate.parse(iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationFrom")).getString()));
                         iteration.setTo(LocalDate.parse(iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationTo")).getString()));
                         iteration.setAssociatedProjects((ArrayList<String>) iterationResource.listProperties(ResourceFactory.createProperty(namespace + "associatedProject"))
@@ -87,22 +108,31 @@ public class IterationRepository {
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 
     public IterationDto findById(String iterationId) {
         String iterationURI = namespace + iterationId;
         Resource iterationResource = ResourceFactory.createResource(iterationURI);
+        IterationDto iteration = new IterationDto();
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
 
             if (!model.containsResource(iterationResource)) {
-                return null;
+                throw new IllegalArgumentException("Iteration with ID " + iterationId + " does not exist in the dataset.");
             }
 
             String iterationName = model.getProperty(iterationResource, model.createProperty(namespace + "iterationName"))
                     .getString();
+
+            Statement subjectStatement = iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationSubject"));
+            if (subjectStatement != null) {
+                iteration.setSubject(subjectStatement.getString());
+            }
+
             String iterationSubject = model.getProperty(iterationResource, model.createProperty(namespace + "iterationSubject"))
                     .getString();
             String iterationFrom = model.getProperty(iterationResource, model.createProperty(namespace + "iterationFrom"))
@@ -113,7 +143,6 @@ public class IterationRepository {
                     .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
                     .toList();
 
-            IterationDto iteration = new IterationDto();
             iteration.setName(iterationName);
             iteration.setSubject(iterationSubject);
             iteration.setFrom(LocalDate.parse(iterationFrom));
@@ -130,6 +159,7 @@ public class IterationRepository {
     public List<IterationDto> getIterationsByProject(String projectId) {
         String projectURI = namespace + projectId;
         Resource projectResource = ResourceFactory.createResource(projectURI);
+        IterationDto iteration = new IterationDto();
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
@@ -142,6 +172,12 @@ public class IterationRepository {
 
                 String iterationName = model.getProperty(iterationResource, model.createProperty(namespace + "iterationName"))
                         .getString();
+
+                Statement subjectStatement = iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationSubject"));
+                if (subjectStatement != null) {
+                    iteration.setSubject(subjectStatement.getString());
+                }
+
                 String iterationSubject = model.getProperty(iterationResource, model.createProperty(namespace + "iterationSubject"))
                         .getString();
                 String iterationFrom = model.getProperty(iterationResource, model.createProperty(namespace + "iterationFrom"))
@@ -152,7 +188,6 @@ public class IterationRepository {
                         .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
                         .toList();
 
-                IterationDto iteration = new IterationDto();
                 iteration.setName(iterationName);
                 iteration.setSubject(iterationSubject);
                 iteration.setFrom(LocalDate.parse(iterationFrom));

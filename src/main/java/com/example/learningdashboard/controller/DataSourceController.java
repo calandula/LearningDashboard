@@ -1,11 +1,7 @@
 package com.example.learningdashboard.controller;
 
-import com.example.learningdashboard.dtos.CategoryItemDto;
 import com.example.learningdashboard.dtos.DataSourceDto;
-import com.example.learningdashboard.dtos.StudentDto;
-import com.example.learningdashboard.service.CategoryItemService;
 import com.example.learningdashboard.service.DataSourceService;
-import com.example.learningdashboard.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

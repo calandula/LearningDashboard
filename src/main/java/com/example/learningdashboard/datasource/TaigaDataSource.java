@@ -3,7 +3,6 @@ package com.example.learningdashboard.datasource;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import org.kohsuke.github.*;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.List;

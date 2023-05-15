@@ -15,10 +15,8 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class CategoryDto {
     private String id;
-
     @NotBlank
     private String name;
-
     @NotEmpty
     private ArrayList<String> categoryItems;
 }

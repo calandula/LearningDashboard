@@ -1,9 +1,7 @@
 package com.example.learningdashboard.service;
 
 import com.example.learningdashboard.dtos.DataSourceDto;
-import com.example.learningdashboard.dtos.SIItemDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
-import com.example.learningdashboard.repository.SIItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

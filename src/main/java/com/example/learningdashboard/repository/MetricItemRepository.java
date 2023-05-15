@@ -1,8 +1,6 @@
 package com.example.learningdashboard.repository;
 
-import com.example.learningdashboard.dtos.CategoryDto;
-import com.example.learningdashboard.dtos.MetricDto;
-import com.example.learningdashboard.dtos.SIItemDto;
+import com.example.learningdashboard.dtos.MetricItemDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -16,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public class MetricRepository {
+public class MetricItemRepository {
 
     @Autowired
     private String prefixes;
@@ -27,8 +25,9 @@ public class MetricRepository {
     @Autowired
     private String namespace;
 
-    public MetricDto save(MetricDto metric, String metricId) {
-        String metricURI = metricId == null ? namespace + UUID.randomUUID().toString() : metricId;
+    public MetricItemDto save(MetricItemDto metric, String metricId) {
+        metricId = metricId == null ? UUID.randomUUID().toString() : metricId;
+        String metricURI = namespace + metricId;
         Resource metricResource = ResourceFactory.createResource(metricURI);
         Resource metricClass = ResourceFactory.createResource(namespace + "Metric");
         dataset.begin(ReadWrite.WRITE);
@@ -60,20 +59,21 @@ public class MetricRepository {
             }
 
             dataset.commit();
-            return null;
+            metric.setId(metricId);
+            return metric;
         } catch (Exception e) {
             dataset.abort();
             throw e;
         }
     }
 
-    public List<MetricDto> findAll() {
-        List<MetricDto> metrics = new ArrayList<>();
+    public List<MetricItemDto> findAll() {
+        List<MetricItemDto> metrics = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Metric"))
                     .forEachRemaining(metricResource -> {
-                        MetricDto metric = new MetricDto();
+                        MetricItemDto metric = new MetricItemDto();
                         metric.setName(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString());
                         metric.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
                         metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
@@ -92,7 +92,7 @@ public class MetricRepository {
         }
     }
 
-    public MetricDto findById(String metricId) {
+    public MetricItemDto findById(String metricId) {
         String metricURI = namespace + metricId;
         Resource metricResource = ResourceFactory.createResource(metricURI);
         dataset.begin(ReadWrite.READ);
@@ -115,7 +115,7 @@ public class MetricRepository {
                     .getString();
             String metricCategory = metricResource.getPropertyResourceValue(model.createProperty(namespace + "metricCategory")).getURI();
 
-            MetricDto metric = new MetricDto();
+            MetricItemDto metric = new MetricItemDto();
             metric.setName(metricName);
             metric.setDescription(metricDescription);
             metric.setCategory(metricCategory);
@@ -129,10 +129,10 @@ public class MetricRepository {
         }
     }
 
-    public List<MetricDto> findByQFItem(String qfItemId) {
+    public List<MetricItemDto> findByQFItem(String qfItemId) {
         String qfItemURI = namespace + qfItemId;
         Resource qfItemResource = ResourceFactory.createResource(qfItemURI);
-        List<MetricDto> metrics = new ArrayList<>();
+        List<MetricItemDto> metrics = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
@@ -148,7 +148,7 @@ public class MetricRepository {
                 if (metricNode.isResource()) {
                     Resource metricResource = metricNode.asResource();
 
-                    MetricDto metric = new MetricDto();
+                    MetricItemDto metric = new MetricItemDto();
                     metric.setName(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString())));
                     metric.setDescription(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString())));
                     metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());

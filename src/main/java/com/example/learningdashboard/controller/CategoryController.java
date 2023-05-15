@@ -36,8 +36,8 @@ public class CategoryController {
 
     @GetMapping("/item/{id}")
     public ResponseEntity<CategoryDto> getCategoryByItem(@PathVariable("id") String itemId) {
-        CategoryDto category = categoryService.getCategoryByItem(itemId);
-        return new ResponseEntity<>(category, HttpStatus.OK);
+        CategoryDto categories = categoryService.getCategoryByItem(itemId);
+        return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     @PutMapping("{id}")

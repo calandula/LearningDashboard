@@ -1,9 +1,7 @@
 package com.example.learningdashboard.controller;
 
-import com.example.learningdashboard.dtos.CategoryDto;
 import com.example.learningdashboard.dtos.CategoryItemDto;
 import com.example.learningdashboard.service.CategoryItemService;
-import com.example.learningdashboard.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +35,9 @@ public class CategoryItemController {
     }
 
     @GetMapping("/category/{id}")
-    public ResponseEntity<CategoryItemDto> getCategoryItemByCategory(@PathVariable("id") String categoryId) {
-        CategoryItemDto categoryItem = categoryItemService.getCategoryItemByCategoryId(categoryId);
-        return new ResponseEntity<>(categoryItem, HttpStatus.OK);
+    public ResponseEntity<List<CategoryItemDto>> getCategoryItemByCategory(@PathVariable("id") String categoryId) {
+        List<CategoryItemDto> categoryItems = categoryItemService.getCategoryItemByCategoryId(categoryId);
+        return new ResponseEntity<>(categoryItems, HttpStatus.OK);
     }
 
     @PutMapping("{id}")

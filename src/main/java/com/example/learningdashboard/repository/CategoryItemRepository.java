@@ -23,7 +23,8 @@ public class CategoryItemRepository {
     private String namespace;
 
     public CategoryItemDto save(CategoryItemDto categoryItem, String categoryItemId) {
-        String categoryItemURI = categoryItemId == null ? namespace + UUID.randomUUID().toString() : categoryItemId;
+        categoryItemId = categoryItemId == null ? UUID.randomUUID().toString() : categoryItemId;
+        String categoryItemURI = namespace + categoryItemId;
         Resource categoryItemResource = ResourceFactory.createResource(categoryItemURI);
         Resource categoryItemClass = ResourceFactory.createResource(namespace + "CategoryItem");
         dataset.begin(ReadWrite.WRITE);
@@ -38,6 +39,7 @@ public class CategoryItemRepository {
                             ResourceFactory.createTypedLiteral(categoryItem.getUpperThreshold()));
 
             dataset.commit();
+            categoryItem.setId(categoryItemId);
             return categoryItem;
         } catch (Exception e) {
             dataset.abort();
@@ -96,36 +98,40 @@ public class CategoryItemRepository {
         }
     }
 
-    public CategoryItemDto findByCategoryId(String categoryId) {
+    public List<CategoryItemDto> findByCategoryId(String categoryId) {
         String categoryURI = namespace + categoryId;
         Resource categoryResource = ResourceFactory.createResource(categoryURI);
+        List<CategoryItemDto> categoryItemDtos = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
 
             if (!model.containsResource(categoryResource)) {
-                return null;
+                throw new IllegalArgumentException("Category with ID " + categoryId + " does not exist in the dataset.");
             }
 
-            StmtIterator stmtIterator = model.listStatements(categoryResource, model.createProperty(namespace + "hasCategoryItem"), (RDFNode)null);
-            if(!stmtIterator.hasNext()){
-                return null;
+            StmtIterator it = model.listStatements(categoryResource, ResourceFactory.createProperty(namespace + "hasCategoryItem"), (RDFNode) null);
+            while (it.hasNext()) {
+                Statement stmt = it.next();
+                RDFNode qfItemNode = stmt.getObject();
+                if (qfItemNode.isResource()) {
+                    dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "CategoryItem"))
+                            .forEachRemaining(categoryItemResource -> {
+                                CategoryItemDto categoryItem = new CategoryItemDto();
+                                categoryItem.setColor(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIType")).getString());
+                                categoryItem.setType(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIColor")).getString());
+                                categoryItem.setUpperThreshold(Float.parseFloat(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIUpperThreshold")).getString()));
+                                categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
+                                categoryItemDtos.add(categoryItem);
+                            });
+                }
             }
-            Resource categoryItemResource = stmtIterator.next().getObject().asResource();
 
-            String categoryItemType = model.getProperty(categoryItemResource, model.createProperty(namespace + "CIType"))
-                    .getString();
-            String categoryItemColor = model
-                    .getProperty(categoryItemResource, model.createProperty(namespace + "CIColor")).getString();
-            int categoryItemUpperThreshold = model.getProperty(categoryItemResource, model.createProperty(namespace + "CIUpperThreshold"))
-                    .getInt();
-
-            CategoryItemDto categoryItem = new CategoryItemDto();
-            categoryItem.setType(categoryItemType);
-            categoryItem.setColor(categoryItemColor);
-            categoryItem.setUpperThreshold(categoryItemUpperThreshold);
-            categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
-            return categoryItem;
+            dataset.commit();
+            return categoryItemDtos;
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         } finally {
             dataset.end();
         }

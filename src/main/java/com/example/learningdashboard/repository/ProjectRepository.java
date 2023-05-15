@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.example.learningdashboard.utils.JenaUtils.getPropertyList;
+
 @Repository
 public class ProjectRepository {
 
@@ -26,50 +28,68 @@ public class ProjectRepository {
     private String namespace;
 
     public ProjectDto save(ProjectDto project, String projectId) {
-        String projectURI = projectId == null ? namespace + UUID.randomUUID().toString() : projectId;
+        projectId = projectId == null ? UUID.randomUUID().toString() : projectId;
+        String projectURI = namespace + projectId;
         Resource projectResource = ResourceFactory.createResource(projectURI);
         Resource projectClass = ResourceFactory.createResource(namespace + "Project");
         dataset.begin(ReadWrite.WRITE);
         try {
-            List<Resource> hiResources = project.getHierarchyItems().stream()
-                    .map(hiId -> ResourceFactory.createResource(namespace + hiId))
-                    .filter(hiResource -> dataset.getDefaultModel().containsResource(hiResource))
-                    .toList();
-            if (hiResources.size() != project.getHierarchyItems().size()) {
-                throw new IllegalArgumentException("One or more strategic indicator Item IDs do not exist in the dataset.");
+            List<Resource> hiResources = new ArrayList<>();
+            List<Resource> dsResources = new ArrayList<>();
+            List<Resource> studentResources = new ArrayList<>();
+
+            if (project.getSIItems() != null) {
+                hiResources = project.getSIItems().stream()
+                        .map(hiId -> ResourceFactory.createResource(namespace + hiId))
+                        .filter(hiResource -> dataset.getDefaultModel().containsResource(hiResource))
+                        .toList();
+                if (hiResources.size() != project.getSIItems().size()) {
+                    throw new IllegalArgumentException("One or more strategic indicator Item IDs do not exist in the dataset.");
+                }
             }
 
-            List<Resource> dsResources = project.getDataSources().stream()
-                    .map(dsId -> ResourceFactory.createResource(namespace + dsId))
-                    .filter(dsResource -> dataset.getDefaultModel().containsResource(dsResource))
-                    .toList();
-            if (dsResources.size() != project.getDataSources().size()) {
-                throw new IllegalArgumentException("One or more datasources IDs do not exist in the dataset.");
+            if (project.getDataSources() != null) {
+                dsResources = project.getDataSources().stream()
+                        .map(dsId -> ResourceFactory.createResource(namespace + dsId))
+                        .filter(dsResource -> dataset.getDefaultModel().containsResource(dsResource))
+                        .toList();
+                if (dsResources.size() != project.getDataSources().size()) {
+                    throw new IllegalArgumentException("One or more datasources IDs do not exist in the dataset.");
+                }
             }
 
-            List<Resource> studentResources = project.getStudents().stream()
-                    .map(studentId -> ResourceFactory.createResource(namespace + studentId))
-                    .filter(studentResource -> dataset.getDefaultModel().containsResource(studentResource))
-                    .toList();
-            if (studentResources.size() != project.getStudents().size()) {
-                throw new IllegalArgumentException("One or more Student IDs do not exist in the dataset.");
+            if (project.getStudents() != null) {
+                studentResources = project.getStudents().stream()
+                        .map(studentId -> ResourceFactory.createResource(namespace + studentId))
+                        .filter(studentResource -> dataset.getDefaultModel().containsResource(studentResource))
+                        .toList();
+                if (studentResources.size() != project.getStudents().size()) {
+                    throw new IllegalArgumentException("One or more Student IDs do not exist in the dataset.");
+                }
             }
 
             dataset.getDefaultModel()
                     .add(projectResource, RDF.type, projectClass)
                     .add(projectResource, ResourceFactory.createProperty(namespace + "projectName"),
                             ResourceFactory.createPlainLiteral(project.getName()))
-                    .add(projectResource, ResourceFactory.createProperty(namespace + "projectDescription"),
-                            ResourceFactory.createPlainLiteral(project.getDescription()))
                     .add(projectResource, ResourceFactory.createProperty(namespace + "projectIsGlobal"),
-                            ResourceFactory.createTypedLiteral(project.isGlobal()))
-                    .add(projectResource, ResourceFactory.createProperty(namespace + "projectLogo"),
-                            ResourceFactory.createPlainLiteral(project.getLogo()));
+                            ResourceFactory.createTypedLiteral(project.isGlobal()));
 
+            if (project.getDescription() != null) {
+                dataset.getDefaultModel()
+                        .add(projectResource, ResourceFactory.createProperty(namespace + "projectDescription"),
+                                ResourceFactory.createPlainLiteral(project.getDescription()));
+            }
+
+            if (project.getLogo() != null) {
+                dataset.getDefaultModel()
+                        .add(projectResource, ResourceFactory.createProperty(namespace + "projectLogo"),
+                                ResourceFactory.createPlainLiteral(project.getLogo()));
+            }
 
             hiResources.forEach(hiResource ->
                     dataset.getDefaultModel().add(projectResource,
-                            ResourceFactory.createProperty(namespace + "hasHI"),
+                            ResourceFactory.createProperty(namespace + "hasSIItem"),
                             hiResource));
             dsResources.forEach(dsResource ->
                     dataset.getDefaultModel().add(projectResource,
@@ -81,7 +101,8 @@ public class ProjectRepository {
                             studentResource));
 
             dataset.commit();
-            return null;
+            project.setId(projectId);
+            return project;
         } catch (Exception e) {
             dataset.abort();
             throw e;
@@ -95,20 +116,14 @@ public class ProjectRepository {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Project"))
                     .forEachRemaining(projectResource -> {
                         ProjectDto project = new ProjectDto();
-                        project.setName(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectName")).getString());
-                        project.setDescription(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectDescription")).getString());
-                        project.setGlobal(Boolean.parseBoolean(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectIsGlobal")).getString()));
-                        project.setLogo(projectResource.getProperty(ResourceFactory.createProperty(namespace + "projectLogo")).getString());
+                        project.setName(JenaUtils.getPropertyString(projectResource, namespace + "projectName"));
+                        project.setDescription(JenaUtils.getPropertyString(projectResource, namespace + "projectDescription"));
+                        project.setGlobal(JenaUtils.getPropertyBoolean(projectResource, namespace + "projectIsGlobal"));
+                        project.setLogo(JenaUtils.getPropertyString(projectResource, namespace + "projectLogo"));
 
-                        project.setHierarchyItems((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasHI"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
-                        project.setDataSources((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasDataSource"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
-                        project.setStudents((ArrayList<String>) projectResource.listProperties(ResourceFactory.createProperty(namespace + "hasStudent"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
+                        project.setSIItems((ArrayList<String>) getPropertyList(projectResource, namespace + "hasSIItem"));
+                        project.setDataSources((ArrayList<String>) getPropertyList(projectResource, namespace + "hasDataSource"));
+                        project.setStudents((ArrayList<String>) getPropertyList(projectResource, namespace + "hasStudent"));
                         project.setId(JenaUtils.parseId(projectResource.getURI()));
                         projects.add(project);
                     });
@@ -132,38 +147,21 @@ public class ProjectRepository {
                 return null;
             }
 
-            String projectName = model.getProperty(projectResource, model.createProperty(namespace + "projectName"))
-                    .getString();
-            String projectDescription = model.getProperty(projectResource, model.createProperty(namespace + "projectDescription"))
-                    .getString();
-            String projectBacklogID = model.getProperty(projectResource, model.createProperty(namespace + "projectBacklogID"))
-                    .getString();
-            String projectTaigaURL = model.getProperty(projectResource, model.createProperty(namespace + "projectTaigaURL"))
-                    .getString();
-            String projectGithubURL = model.getProperty(projectResource, model.createProperty(namespace + "projectGithubURL"))
-                    .getString();
-            String projectIsGlobal = model.getProperty(projectResource, model.createProperty(namespace + "projectIsGlobal"))
-                    .getString();
-            String projectLogo = model.getProperty(projectResource, model.createProperty(namespace + "projectLogo"))
-                    .getString();
+            String projectName = JenaUtils.getPropertyString(projectResource, namespace + "projectName");
+            String projectDescription = JenaUtils.getPropertyString(projectResource, namespace + "projectDescription");
+            boolean projectIsGlobal = JenaUtils.getPropertyBoolean(projectResource, namespace + "projectIsGlobal");
+            String projectLogo = JenaUtils.getPropertyString(projectResource, namespace + "projectLogo");
 
-
-            List<String> HIs = model.listObjectsOfProperty(projectResource, model.createProperty(namespace + "hasHi"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
-            List<String> dss = model.listObjectsOfProperty(projectResource, model.createProperty(namespace + "hasDataSource"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
-            List<String> students = model.listObjectsOfProperty(projectResource, model.createProperty(namespace + "hasStudent"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
+            List<String> HIs = JenaUtils.getPropertyList(projectResource, namespace + "hasSIItem");
+            List<String> dss = JenaUtils.getPropertyList(projectResource, namespace + "hasDataSource");
+            List<String> students = JenaUtils.getPropertyList(projectResource, namespace + "hasStudent");
 
             ProjectDto project = new ProjectDto();
             project.setName(projectName);
             project.setDescription(projectDescription);
-            project.setGlobal(Boolean.parseBoolean(projectIsGlobal));
+            project.setGlobal(projectIsGlobal);
             project.setLogo(projectLogo);
-            project.setHierarchyItems((ArrayList<String>) HIs);
+            project.setSIItems((ArrayList<String>) HIs);
             project.setDataSources((ArrayList<String>) dss);
             project.setStudents((ArrayList<String>) students);
             project.setId(JenaUtils.parseId(projectResource.getURI()));
@@ -190,6 +188,45 @@ public class ProjectRepository {
                 dataset.getDefaultModel().removeAll(projectResource, null, (RDFNode) null);
             }
             dataset.commit();
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
+        }
+    }
+
+    public List<ProjectDto> findByProduct(String productId) {
+        String productURI = namespace + productId;
+        Resource productResource = ResourceFactory.createResource(productURI);
+        List<ProjectDto> projects = new ArrayList<>();
+        dataset.begin(ReadWrite.READ);
+        try {
+            Model model = dataset.getDefaultModel();
+
+            if (!model.containsResource(productResource)) {
+                throw new IllegalArgumentException("Product with ID " + productId + " does not exist in the dataset.");
+            }
+
+            StmtIterator it = model.listStatements(productResource, ResourceFactory.createProperty(namespace + "hasProject"), (RDFNode) null);
+            while (it.hasNext()) {
+                Statement stmt = it.next();
+                RDFNode projectNode = stmt.getObject();
+                if (projectNode.isResource()) {
+                    Resource projectResource = projectNode.asResource();
+                    ProjectDto project = new ProjectDto();
+                    project.setName(JenaUtils.getPropertyString(projectResource, namespace + "projectName"));
+                    project.setDescription(JenaUtils.getPropertyString(projectResource, namespace + "projectDescription"));
+                    project.setGlobal(JenaUtils.getPropertyBoolean(projectResource, namespace + "projectIsGlobal"));
+                    project.setLogo(JenaUtils.getPropertyString(projectResource, namespace + "projectLogo"));
+                    project.setSIItems((ArrayList<String>) getPropertyList(projectResource, namespace + "hasSIItem"));
+                    project.setDataSources((ArrayList<String>) getPropertyList(projectResource, namespace + "hasDataSource"));
+                    project.setStudents((ArrayList<String>) getPropertyList(projectResource, namespace + "hasStudent"));
+                    project.setId(JenaUtils.parseId(projectResource.getURI()));
+                    projects.add(project);
+                }
+            }
+
+            dataset.commit();
+            return projects;
         } catch (Exception e) {
             dataset.abort();
             throw e;

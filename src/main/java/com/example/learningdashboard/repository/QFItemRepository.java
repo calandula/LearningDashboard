@@ -1,7 +1,6 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.QFItemDto;
-import com.example.learningdashboard.dtos.SIItemDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -27,7 +26,8 @@ public class QFItemRepository {
     private String namespace;
 
     public QFItemDto save(QFItemDto qfItem, String QFItemId) {
-        String qfItemURI = QFItemId == null ? namespace + UUID.randomUUID().toString() : QFItemId;
+        QFItemId = QFItemId == null ? UUID.randomUUID().toString() : QFItemId;
+        String qfItemURI = namespace + QFItemId;
         Resource qfItemResource = ResourceFactory.createResource(qfItemURI);
         Resource qfItemClass = ResourceFactory.createResource(namespace + "QFItem");
         dataset.begin(ReadWrite.WRITE);
@@ -131,7 +131,8 @@ public class QFItemRepository {
 
 
             dataset.commit();
-            return null;
+            qfItem.setId(QFItemId);
+            return qfItem;
         } catch (Exception e) {
             dataset.abort();
             throw e;

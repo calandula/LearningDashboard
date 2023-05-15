@@ -1,8 +1,7 @@
 package com.example.learningdashboard.service;
 
-import com.example.learningdashboard.dtos.CategoryDto;
-import com.example.learningdashboard.dtos.MetricDto;
-import com.example.learningdashboard.repository.MetricRepository;
+import com.example.learningdashboard.dtos.MetricItemDto;
+import com.example.learningdashboard.repository.MetricItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,30 +9,30 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class MetricService {
+public class MetricItemService {
 
     @Autowired
-    private MetricRepository metricRepository;
+    private MetricItemRepository metricRepository;
 
-    public MetricDto createMetric(MetricDto metric) {
+    public MetricItemDto createMetric(MetricItemDto metric) {
         return metricRepository.save(metric, null);
     }
 
-    public List<MetricDto> getAllMetrics() {
+    public List<MetricItemDto> getAllMetrics() {
         return metricRepository.findAll();
     }
 
-    public MetricDto getMetricById(String metricId) {
-        Optional<MetricDto> optionalMetric = Optional.ofNullable(metricRepository.findById(metricId));
+    public MetricItemDto getMetricById(String metricId) {
+        Optional<MetricItemDto> optionalMetric = Optional.ofNullable(metricRepository.findById(metricId));
         return optionalMetric.orElse(null);
     }
 
-    public List<MetricDto> getMetricByQFItem(String qfItemId) {
+    public List<MetricItemDto> getMetricByQFItem(String qfItemId) {
         return metricRepository.findByQFItem(qfItemId);
     }
 
-    public MetricDto updateMetric(String metricId, MetricDto metric) {
-        Optional<MetricDto> optionalMetric = Optional.ofNullable(metricRepository.findById(metricId));
+    public MetricItemDto updateMetric(String metricId, MetricItemDto metric) {
+        Optional<MetricItemDto> optionalMetric = Optional.ofNullable(metricRepository.findById(metricId));
         if (optionalMetric.isPresent()) {
             metricRepository.deleteById(metricId, true);
             return metricRepository.save(metric, metricId);

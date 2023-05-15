@@ -5,7 +5,6 @@ import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
-import org.apache.jena.sparql.exec.RowSet;
 import org.apache.jena.vocabulary.RDF;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -99,7 +98,8 @@ public class DataSourceRepository {
     }
 
     public DataSourceDto save(DataSourceDto ds, String dsId) {
-        String dsURI = dsId == null ? namespace + UUID.randomUUID().toString() : dsId;
+        dsId = dsId == null ? UUID.randomUUID().toString() : dsId;
+        String dsURI = namespace + dsId;
         Resource dsResource = ResourceFactory.createResource(dsURI);
         Resource dsClass = ResourceFactory.createResource(namespace + "DataSource");
         dataset.begin(ReadWrite.WRITE);
@@ -112,7 +112,8 @@ public class DataSourceRepository {
                             ResourceFactory.createPlainLiteral(ds.getOwner()));
 
             dataset.commit();
-            return null;
+            ds.setId(dsId);
+            return ds;
         } catch (Exception e) {
             dataset.abort();
             throw e;

@@ -1,7 +1,6 @@
 package com.example.learningdashboard.service;
 
 import com.example.learningdashboard.dtos.CategoryItemDto;
-import com.example.learningdashboard.dtos.UserDto;
 import com.example.learningdashboard.repository.CategoryItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,7 @@ public class CategoryItemService {
         return optionalCategoryItem.orElse(null);
     }
 
-    public CategoryItemDto getCategoryItemByCategoryId(String categoryId) {
+    public List<CategoryItemDto> getCategoryItemByCategoryId(String categoryId) {
         return categoryItemRepository.findByCategoryId(categoryId);
     }
 

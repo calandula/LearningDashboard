@@ -1,6 +1,5 @@
 package com.example.learningdashboard.service;
 
-import com.example.learningdashboard.dtos.CategoryDto;
 import com.example.learningdashboard.dtos.ProductDto;
 import com.example.learningdashboard.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;

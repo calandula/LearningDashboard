@@ -1,6 +1,5 @@
 package com.example.learningdashboard.service;
 
-import com.example.learningdashboard.dtos.CategoryItemDto;
 import com.example.learningdashboard.dtos.ProjectDto;
 import com.example.learningdashboard.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +41,11 @@ public class ProjectService {
         } else {
             return null;
         }
+    }
+
+    public List<ProjectDto> getProjectsByProduct(String productId) {
+        List<ProjectDto> projects = projectRepository.findByProduct(productId);
+        return new ArrayList<>(projects);
     }
 }
 

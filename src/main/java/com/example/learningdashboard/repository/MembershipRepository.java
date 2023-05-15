@@ -1,7 +1,6 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.MembershipDto;
-import com.example.learningdashboard.dtos.StudentDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -75,7 +74,8 @@ public class MembershipRepository {
     }
 
     public MembershipDto save(MembershipDto membership, String membershipId) {
-        String membershipURI = membershipId == null ? namespace + UUID.randomUUID().toString() : membershipId;
+        membershipId = membershipId == null ? UUID.randomUUID().toString() : membershipId;
+        String membershipURI = namespace + membershipId;
         Resource membershipResource = ResourceFactory.createResource(membershipURI);
         Resource membershipClass = ResourceFactory.createResource(namespace + "Membership");
         dataset.begin(ReadWrite.WRITE);
@@ -91,8 +91,8 @@ public class MembershipRepository {
                     .add(membershipResource, ResourceFactory.createProperty(namespace + "sourceDS"),
                             ResourceFactory.createResource(namespace + membership.getBasedDataSource()));
             dataset.commit();
-            MembershipDto memb = new MembershipDto(membershipURI, membership.getUsername(), membership.getBasedDataSource());
-            return memb;
+            membership.setId(membershipId);
+            return membership;
         } catch (Exception e) {
             dataset.abort();
             throw e;

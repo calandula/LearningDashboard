@@ -26,7 +26,8 @@ public class CategoryRepository {
     private String namespace;
 
     public CategoryDto save(CategoryDto category, String categoryId) {
-        String categoryURI = categoryId == null ? namespace + UUID.randomUUID().toString() : categoryId;
+        categoryId = categoryId == null ? UUID.randomUUID().toString() : categoryId;
+        String categoryURI = namespace + categoryId;
         Resource categoryResource = ResourceFactory.createResource(categoryURI);
         Resource categoryClass = ResourceFactory.createResource(namespace + "Category");
         dataset.begin(ReadWrite.WRITE);
@@ -49,7 +50,8 @@ public class CategoryRepository {
                             projectResource));
 
             dataset.commit();
-            return null;
+            category.setId(categoryId);
+            return category;
         } catch (Exception e) {
             dataset.abort();
             throw e;
@@ -109,31 +111,36 @@ public class CategoryRepository {
     public CategoryDto findByItem(String itemId) {
         String itemURI = namespace + itemId;
         Resource itemResource = ResourceFactory.createResource(itemURI);
+        CategoryDto category = new CategoryDto();
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
 
             if (!model.containsResource(itemResource)) {
-                return null;
+                throw new IllegalArgumentException("Item (SIItem, QFItem and MetricItem) with ID " + itemId + " does not exist in the dataset.");
             }
 
-            StmtIterator stmtIterator = model.listStatements(itemResource, model.createProperty(namespace + "hasCategory"), (RDFNode)null);
-            if(!stmtIterator.hasNext()){
-                return null;
+            StmtIterator it = model.listStatements(itemResource, ResourceFactory.createProperty(namespace + "hasCategory"), (RDFNode) null);
+
+            while (it.hasNext()) {
+                Statement stmt = it.next();
+                RDFNode categoryNode = stmt.getObject();
+                if (categoryNode.isResource()) {
+                    Resource categoryResource = categoryNode.asResource();
+                    category.setId(JenaUtils.parseId(categoryResource.getURI()));
+                    category.setName(categoryResource.getProperty(ResourceFactory.createProperty(namespace + "name")).getString());
+                    List<String> categoryItems = model.listObjectsOfProperty(categoryResource, model.createProperty(namespace + "hasCategoryItem"))
+                            .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
+                            .toList();
+                    category.setCategoryItems((ArrayList<String>) categoryItems);
+                }
             }
-            Resource categoryResource = stmtIterator.next().getObject().asResource();
 
-            String categoryName = model.getProperty(categoryResource, model.createProperty(namespace + "categoryName"))
-                    .getString();
-            List<String> categoryItems = model.listObjectsOfProperty(categoryResource, model.createProperty(namespace + "hasCategoryItem"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
-
-            CategoryDto category = new CategoryDto();
-            category.setName(categoryName);
-            category.setCategoryItems((ArrayList<String>) categoryItems);
-            category.setId(JenaUtils.parseId(categoryResource.getURI()));
+            dataset.commit();
             return category;
+        } catch (Exception e) {
+            dataset.abort();
+            throw e;
         } finally {
             dataset.end();
         }
