@@ -235,13 +235,15 @@ public class MetricItemRepository {
             }
 
             // update connected SIItems
+            List<Statement> statementsToUpdate = new ArrayList<>();
+
             for (Resource qfItem : updatedQFItems) {
-                StmtIterator stmtIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasQFItem"), qfItem);
+                StmtIterator stmtIter = model.listStatements((Resource) null, ResourceFactory.createProperty(namespace + "hasQFI"), qfItem);
                 while (stmtIter.hasNext()) {
                     Statement stmt = stmtIter.next();
                     Resource siItemResource = stmt.getSubject();
                     float siItemValue = 0.0f;
-                    StmtIterator stmtIter2 = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFItem"));
+                    StmtIterator stmtIter2 = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFI"));
                     while (stmtIter2.hasNext()) {
                         Statement stmt2 = stmtIter2.next();
                         Resource qfItemResource = stmt2.getObject().asResource();
@@ -256,13 +258,23 @@ public class MetricItemRepository {
                     System.out.println("SIItem assigned value: " + siItemValue);
                     System.out.println("----------------------------------");
 
-                    siItemResource.removeAll(ResourceFactory.createProperty(namespace + "SIItemValue"));
-                    siItemResource.addLiteral(ResourceFactory.createProperty(namespace + "SIItemValue"), siItemValue);
+                    Property siItemValueProperty = ResourceFactory.createProperty(namespace + "SIItemValue");
+                    Statement updatedStmt = ResourceFactory.createStatement(siItemResource, siItemValueProperty, ResourceFactory.createTypedLiteral(siItemValue));
+                    statementsToUpdate.add(updatedStmt);
                 }
             }
 
-            dataset.commit();
+            try {
+                for (Statement statement : statementsToUpdate) {
+                    model.remove(statement);
+                    model.add(statement);
+                }
 
+                dataset.commit();
+            } catch (Exception e) {
+                dataset.abort();
+                throw e;
+            }
         } catch (Exception e) {
             dataset.abort();
             throw e;

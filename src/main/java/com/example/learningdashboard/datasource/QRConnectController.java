@@ -44,37 +44,21 @@ public class QRConnectController {
             return ResponseEntity.badRequest().body("Invalid data source ID");
         }
 
-        /*DataSource dataSource = dataSourceFactory.getDataSource(dataSourceClassName, dataSourceId);
-
-        if (dataSource == null) {
-            return ResponseEntity.badRequest().body("Invalid data source class name");
-        }
-
-        if (!dataSource.supportsObject(objectName)) {
-            return ResponseEntity.badRequest().body("Invalid object name for the selected data source");
-        }
-
-        try {
-            Object data = dataSource.retrieveData(objectName);
-            return ResponseEntity.ok().body("data retrieved successfully");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }*/
         switch (dataSourceClassName) {
-            case "DataSource", "GitHubDataSource":
+            case "DataSource", "GithubDataSource":
                 if (githubEntitiesRepository.supportsObject(objectName)) {
                     try {
                         githubEntitiesRepository.retrieveData(objectName, dataSourceId);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    return null;
+                    return ResponseEntity.ok().body(objectName + " data retrieved successfully");
                 }
             case "TaigaDataSource":
                 githubEntitiesRepository.retrieveData(objectName, dataSourceId);
-                return null;
+                return ResponseEntity.ok().body(objectName + " data retrieved successfully");
         }
 
-        return ResponseEntity.ok().body("data retrieved successfully");
+        return ResponseEntity.ok().body("data could not be retrieved");
         }
     }

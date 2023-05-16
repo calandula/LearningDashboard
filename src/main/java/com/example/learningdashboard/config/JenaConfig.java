@@ -13,8 +13,8 @@ import java.io.File;
 public class JenaConfig {
 
     private static final String TDB_DIRECTORY = "src/main/resources/data/tdb";
-    private static final String ENTITIES_FILE = "data/ontology.owl";
-    private static final String ONTOLOGY_FILE = "data/ontology.owl";
+    private static final String ENTITIES_FILE = "data/ontology-final.owl";
+    private static final String ONTOLOGY_FILE = "data/ontology-final.owl";
 
     @Bean
     public String prefixes() {

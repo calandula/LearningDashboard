@@ -54,7 +54,7 @@ public class QREvalController {
 
         System.out.println(dataSourceClassName);
         switch (dataSourceClassName) {
-            case "DataSource", "GitHubDataSource":
+            case "DataSource", "GithubDataSource":
                 if (githubEntitiesRepository.supportsMethod(method)) {
                     newValue = githubEntitiesRepository.computeMetric(dataSourceId, method);
                 }
@@ -66,7 +66,7 @@ public class QREvalController {
 
         metricRepository.updateValue(newValue, metricId);
 
-        return ResponseEntity.badRequest().body(1);
+        return ResponseEntity.ok().body("Metric computed and quality model updated");
     }
 }
 

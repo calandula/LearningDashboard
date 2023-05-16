@@ -10,12 +10,11 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TaigaDataSourceDto {
-    private String id;
-
+public class TaigaDataSourceDto extends DataSourceDto {
     @NotBlank
-    private String repository;
+    private String backlogID;
 
-    @NotBlank
-    private String owner;
+    public String getType() {
+        return "TaigaDataSource";
+    }
 }

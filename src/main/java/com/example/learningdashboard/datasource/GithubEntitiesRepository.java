@@ -1,6 +1,7 @@
 package com.example.learningdashboard.datasource;
 
 import com.example.learningdashboard.dtos.DataSourceDto;
+import com.example.learningdashboard.dtos.GithubDataSourceDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -42,30 +43,19 @@ public class GithubEntitiesRepository {
     private static final String MODIFIED_LINES = "modified_lines";
 
     public void saveIssues(String datasourceId, List<GHIssue> issues) {
-        /*String studentURI = namespace + studentId;
-        Resource studentResource = ResourceFactory.createResource(studentURI);
-        dataset.begin(ReadWrite.READ);
-        try {
-            Model model = dataset.getDefaultModel();
+        dataset.begin(ReadWrite.WRITE);
+        Model model = dataset.getDefaultModel();
+        Resource datasourceResource = model.createResource(namespace + datasourceId);
 
-            if (!model.containsResource(studentResource)) {
-                return null;
-            }
+        for (GHIssue issue : issues) {
+            Resource commitResource = model.createResource(namespace + issue.getId());
+            model.add(commitResource, RDF.type, model.createResource(namespace + "Commit"));
+            model.add(commitResource, model.createProperty(namespace + "commitTaskWritten"), model.createTypedLiteral(true));
+            model.add(commitResource, model.createProperty(namespace + "commitTotal"), model.createTypedLiteral(222));
 
-            String studentName = model.getProperty(studentResource, model.createProperty(namespace + "studentName"))
-                    .getString();
-            List<String> memberships = model.listObjectsOfProperty(studentResource, model.createProperty(namespace + "hasMembership"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
+        }
 
-            StudentDto student = new StudentDto();
-            student.setName(studentName);
-            student.setMemberships((ArrayList<String>) memberships);
-            student.setId(JenaUtils.parseId(studentResource.getURI()));
-            return student;
-        } finally {
-            dataset.end();
-        }*/
+        dataset.commit();
     }
 
     public void saveCommits(String datasourceId, List<GHCommit> commits) throws IOException {
@@ -144,9 +134,9 @@ public class GithubEntitiesRepository {
     }
 
     public void retrieveData(String objectName, String dataSourceId) throws IOException {
-        DataSourceDto ds = dataSourceRepository.findById(dataSourceId);
+        GithubDataSourceDto ds = (GithubDataSourceDto) dataSourceRepository.findById(dataSourceId);
 
-        GitHub github = new GitHubBuilder().withOAuthToken("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").build();
+        GitHub github = new GitHubBuilder().withOAuthToken(ds.getAccessToken()).build();
         GHRepository repo = github.getRepository(ds.getOwner() + "/" + ds.getRepository());
 
         if (ISSUES_OBJECT.equals(objectName)) {

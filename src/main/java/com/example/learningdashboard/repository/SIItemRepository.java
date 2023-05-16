@@ -94,6 +94,7 @@ public class SIItemRepository {
             dataset.getDefaultModel().add(siItemResource,
                     ResourceFactory.createProperty(namespace + "SIItemValue"),
                     ResourceFactory.createTypedLiteral(weightedSum));
+            siItem.setValue((float) weightedSum);
 
             //--------
 

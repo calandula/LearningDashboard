@@ -10,10 +10,13 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GithubDataSourceDto {
-    private String id;
+public class GithubDataSourceDto extends DataSourceDto {
     @NotBlank
     private String repository;
     @NotBlank
     private String owner;
+
+    public String getType() {
+        return "GithubDataSource";
+    }
 }

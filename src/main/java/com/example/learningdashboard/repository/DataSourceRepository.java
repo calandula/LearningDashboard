@@ -1,6 +1,8 @@
 package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.DataSourceDto;
+import com.example.learningdashboard.dtos.GithubDataSourceDto;
+import com.example.learningdashboard.dtos.TaigaDataSourceDto;
 import com.example.learningdashboard.utils.JenaUtils;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
@@ -29,11 +31,29 @@ public class DataSourceRepository {
         List<DataSourceDto> dsList = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
-            dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "DataSource"))
+            dataset.getDefaultModel().listResourcesWithProperty(RDF.type)
+                    .filterKeep(dsResource -> {
+                        String datasourceType = getClass(JenaUtils.parseId(dsResource.getURI()));
+                        return datasourceType != null && (datasourceType.equals("GithubDataSource") || datasourceType.equals("TaigaDataSource"));
+                    })
                     .forEachRemaining(dsResource -> {
-                        DataSourceDto ds = new DataSourceDto();
-                        ds.setRepository(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString());
-                        ds.setOwner(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceOwner")).getString());
+                        DataSourceDto ds;
+                        String datasourceType = getClass(JenaUtils.parseId(dsResource.getURI()));
+                        if (datasourceType.equals("GithubDataSource")) {
+                            ds = new GithubDataSourceDto();
+                            String datasourceRepository = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString();
+                            ((GithubDataSourceDto) ds).setRepository(datasourceRepository);
+                            String datasourceOwner = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceOwner")).getString();
+                            ((GithubDataSourceDto) ds).setOwner(datasourceOwner);
+                        } else if (datasourceType.equals("TaigaDataSource")) {
+                            ds = new TaigaDataSourceDto();
+                            String backlogId = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceBacklogID")).getString();
+                            ((TaigaDataSourceDto) ds).setBacklogID(backlogId);
+                        } else {
+                            ds = new DataSourceDto();
+                        }
+
+                        ds.setAccessToken(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceToken")).getString());
                         ds.setId(JenaUtils.parseId(dsResource.getURI()));
                         dsList.add(ds);
                     });
@@ -59,15 +79,14 @@ public class DataSourceRepository {
                 RDFNode object = statement.getObject();
 
                 if (object.isResource()) {
-                    dataset.commit();
                     return object.asResource().getURI().replace(namespace, "");
                 }
             }
-            dataset.commit();
             return null;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 
@@ -82,14 +101,27 @@ public class DataSourceRepository {
                 return null;
             }
 
-            String datasourceRepository = model.getProperty(dsResource, model.createProperty(namespace + "datasourceRepository"))
-                    .getString();
-            String datasourceOwner = model.getProperty(dsResource, model.createProperty(namespace + "datasourceOwner"))
-                    .getString();
+            String datasourceType = getClass(dsId);
+            DataSourceDto ds;
+            if (datasourceType.equals("GithubDataSource")) {
+                ds = new GithubDataSourceDto();
+                String datasourceRepository = model.getProperty(dsResource, model.createProperty(namespace + "datasourceRepository"))
+                        .getString();
+                ((GithubDataSourceDto) ds).setRepository(datasourceRepository);
+                String datasourceOwner = model.getProperty(dsResource, model.createProperty(namespace + "datasourceOwner"))
+                        .getString();
+                ((GithubDataSourceDto) ds).setOwner(datasourceOwner);
+            } else if (datasourceType.equals("TaigaDataSource")) {
+                ds = new TaigaDataSourceDto();
+                String backlogId = model.getProperty(dsResource, model.createProperty(namespace + "datasourceBacklogID"))
+                        .getString();
+                ((TaigaDataSourceDto) ds).setBacklogID(backlogId);
+            } else {
+                ds = new DataSourceDto();
+            }
 
-            DataSourceDto ds = new DataSourceDto();
-            ds.setRepository(datasourceRepository);
-            ds.setOwner(datasourceOwner);
+            ds.setAccessToken(model.getProperty(dsResource, model.createProperty(namespace + "datasourceToken"))
+                    .getString());
             ds.setId(JenaUtils.parseId(dsResource.getURI()));
             return ds;
         } finally {
@@ -101,15 +133,25 @@ public class DataSourceRepository {
         dsId = dsId == null ? UUID.randomUUID().toString() : dsId;
         String dsURI = namespace + dsId;
         Resource dsResource = ResourceFactory.createResource(dsURI);
-        Resource dsClass = ResourceFactory.createResource(namespace + "DataSource");
+        Resource dsClass = ResourceFactory.createResource(namespace + ds.getType());
         dataset.begin(ReadWrite.WRITE);
         try {
             dataset.getDefaultModel()
                     .add(dsResource, RDF.type, dsClass)
-                    .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceRepository"),
-                            ResourceFactory.createPlainLiteral(ds.getRepository()))
-                    .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceOwner"),
-                            ResourceFactory.createPlainLiteral(ds.getOwner()));
+                    .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceToken"),
+                            ResourceFactory.createPlainLiteral(ds.getAccessToken()));
+
+            if (ds instanceof GithubDataSourceDto) {
+                dataset.getDefaultModel()
+                        .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceRepository"),
+                                ResourceFactory.createPlainLiteral(((GithubDataSourceDto) ds).getRepository()))
+                        .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceOwner"),
+                                ResourceFactory.createPlainLiteral(((GithubDataSourceDto) ds).getOwner()));
+            } else if (ds instanceof TaigaDataSourceDto) {
+                dataset.getDefaultModel()
+                        .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceBacklogID"),
+                                ResourceFactory.createPlainLiteral(((TaigaDataSourceDto) ds).getBacklogID()));
+            }
 
             dataset.commit();
             ds.setId(dsId);
@@ -136,10 +178,22 @@ public class DataSourceRepository {
             StmtIterator stmtIterator = model.listStatements(projectResource, model.createProperty(namespace + "hasDataSource"), (RDFNode) null);
             while (stmtIterator.hasNext()) {
                 Resource dsResource = stmtIterator.next().getObject().asResource();
+                DataSourceDto ds;
+                String datasourceType = getClass(JenaUtils.parseId(dsResource.getURI()));
+                if (datasourceType.equals("GithubDataSource")) {
+                    ds = new GithubDataSourceDto();
+                    String datasourceRepository = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString();
+                    ((GithubDataSourceDto) ds).setRepository(datasourceRepository);
+                    String datasourceOwner = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceOwner")).getString();
+                    ((GithubDataSourceDto) ds).setOwner(datasourceOwner);
+                } else if (datasourceType.equals("TaigaDataSource")) {
+                    ds = new TaigaDataSourceDto();
+                    String backlogId = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceBacklogID")).getString();
+                    ((TaigaDataSourceDto) ds).setBacklogID(backlogId);
+                } else {
+                    ds = new DataSourceDto();
+                }
 
-                DataSourceDto ds = new DataSourceDto();
-                ds.setRepository(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString());
-                ds.setOwner(dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceOwner")).getString());
                 ds.setId(JenaUtils.parseId(dsResource.getURI()));
                 dsList.add(ds);
             }
@@ -159,20 +213,28 @@ public class DataSourceRepository {
         Resource dsResource = ResourceFactory.createResource(dsURI);
         dataset.begin(ReadWrite.WRITE);
         try {
+            Model model = dataset.getDefaultModel();
+
+            if (!model.containsResource(dsResource)) {
+                throw new IllegalArgumentException("Data source not found");
+            }
+
             if (update) {
-                StmtIterator it = dataset.getDefaultModel().listStatements(dsResource, null, (RDFNode) null);
-                while (it.hasNext()) {
-                    Statement stmt = it.next();
-                    dataset.getDefaultModel().remove(stmt);
+                StmtIterator stmtIterator = model.listStatements(null, null, dsResource);
+                while (stmtIterator.hasNext()) {
+                    Statement statement = stmtIterator.next();
+                    model.remove(statement);
                 }
+            } else {
+                model.removeAll(dsResource, null, (RDFNode) null);
             }
-            else {
-                dataset.getDefaultModel().removeAll(dsResource, null, (RDFNode) null);
-            }
+
             dataset.commit();
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.learningdashboard.datasource;
 
 import com.example.learningdashboard.dtos.DataSourceDto;
+import com.example.learningdashboard.dtos.GithubDataSourceDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import org.kohsuke.github.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,10 @@ public class GithubDataSource extends DataSource {
     }
 
     public GithubDataSource(String dataSourceId) {
-        DataSourceDto ds = dataSourceRepository.findById(dataSourceId);
+        GithubDataSourceDto ds = (GithubDataSourceDto) dataSourceRepository.findById(dataSourceId);
         this.repository = ds.getRepository();
         this.owner = ds.getOwner();
-        this.accessToken = "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";
+        this.accessToken = ds.getAccessToken();
     }
 
 
