@@ -24,12 +24,7 @@ public class MetricItemDto {
     @NotBlank
     private String category;
 
-    @NotNull
     private float threshold;
 
-    @NotNull
-    private float weight;
-
-    @NotNull
     private float value;
 }

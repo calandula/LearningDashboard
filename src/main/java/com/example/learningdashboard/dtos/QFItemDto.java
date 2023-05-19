@@ -1,5 +1,6 @@
 package com.example.learningdashboard.dtos;
 
+import com.example.learningdashboard.utils.SerializablePair;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,20 +18,17 @@ import java.util.ArrayList;
 public class QFItemDto {
 
     private String id;
+
     @NotBlank
     private String sourceQF;
 
     private float value;
 
-    @NotNull
     private float threshold;
 
     @NotBlank
     private String category;
 
-    @NotNull
-    private float weight;
-
     @NotEmpty
-    private ArrayList<String> metrics;
+    private ArrayList<SerializablePair<String, Float>> metricWeights;
 }

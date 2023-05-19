@@ -17,9 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/qreval")
 public class QREvalController {
 
-    private final DataSourceFactory dataSourceFactory;
-
-
     @Autowired
     private Dataset dataset;
 
@@ -34,10 +31,6 @@ public class QREvalController {
 
     @Autowired
     private GithubEntitiesRepository githubEntitiesRepository;
-
-    public QREvalController(DataSourceFactory dataSourceFactory) {
-        this.dataSourceFactory = dataSourceFactory;
-    }
 
     @GetMapping("/eval")
     public ResponseEntity<Object> retrieveData(@RequestBody QREvalDto request) {

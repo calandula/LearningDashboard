@@ -3,6 +3,7 @@ package com.example.learningdashboard.datasource;
 import com.example.learningdashboard.dtos.QRConnectDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import org.apache.jena.query.Dataset;
+import org.apache.jena.query.ReadWrite;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,8 +17,6 @@ import java.io.IOException;
 @RequestMapping("api/qrconnect")
 public class QRConnectController {
 
-    private final DataSourceFactory dataSourceFactory;
-
     @Autowired
     private Dataset dataset;
 
@@ -30,9 +29,6 @@ public class QRConnectController {
     @Autowired
     private GithubEntitiesRepository githubEntitiesRepository;
 
-    public QRConnectController(DataSourceFactory dataSourceFactory) {
-        this.dataSourceFactory = dataSourceFactory;
-    }
 
     @GetMapping("/connect")
     public ResponseEntity<Object> retrieveData(@RequestBody QRConnectDto request) throws IOException {

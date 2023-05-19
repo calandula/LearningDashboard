@@ -33,12 +33,16 @@ public class DataSourceRepository {
         try {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type)
                     .filterKeep(dsResource -> {
+                        dataset.commit();
                         String datasourceType = getClass(JenaUtils.parseId(dsResource.getURI()));
+                        dataset.begin(ReadWrite.READ);
                         return datasourceType != null && (datasourceType.equals("GithubDataSource") || datasourceType.equals("TaigaDataSource"));
                     })
                     .forEachRemaining(dsResource -> {
                         DataSourceDto ds;
+                        dataset.commit();
                         String datasourceType = getClass(JenaUtils.parseId(dsResource.getURI()));
+                        dataset.begin(ReadWrite.READ);
                         if (datasourceType.equals("GithubDataSource")) {
                             ds = new GithubDataSourceDto();
                             String datasourceRepository = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceRepository")).getString();
@@ -100,8 +104,9 @@ public class DataSourceRepository {
             if (!model.containsResource(dsResource)) {
                 return null;
             }
-
+            dataset.end();
             String datasourceType = getClass(dsId);
+            dataset.begin(ReadWrite.READ);
             DataSourceDto ds;
             if (datasourceType.equals("GithubDataSource")) {
                 ds = new GithubDataSourceDto();

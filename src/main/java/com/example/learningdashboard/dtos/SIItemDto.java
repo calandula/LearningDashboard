@@ -1,5 +1,6 @@
 package com.example.learningdashboard.dtos;
 
+import com.example.learningdashboard.utils.SerializablePair;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -23,12 +24,12 @@ public class SIItemDto {
 
     private float value;
 
-    @NotNull
+
     private float threshold;
 
     @NotBlank
     private String category;
 
     @NotEmpty
-    private ArrayList<String> qfItems;
+    private ArrayList<SerializablePair<String, Float>> qfItemWeights;
 }

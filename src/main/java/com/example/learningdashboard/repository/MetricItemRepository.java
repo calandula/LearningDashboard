@@ -42,9 +42,7 @@ public class MetricItemRepository {
                     .add(metricResource, ResourceFactory.createProperty(namespace + "metricThreshold"),
                             ResourceFactory.createTypedLiteral(metric.getThreshold()))
                     .add(metricResource, ResourceFactory.createProperty(namespace + "metricValue"),
-                            ResourceFactory.createTypedLiteral(metric.getValue()))
-                    .add(metricResource, ResourceFactory.createProperty(namespace + "metricWeight"),
-                            ResourceFactory.createTypedLiteral(metric.getWeight()));
+                            ResourceFactory.createTypedLiteral(metric.getValue()));
 
 
             String categoryClassURI = namespace + "Category";
@@ -77,7 +75,6 @@ public class MetricItemRepository {
                         metric.setName(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString());
                         metric.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
                         metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
-                        metric.setWeight(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getString()));
                         metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
                         metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());
                         metric.setId(JenaUtils.parseId(metricResource.getURI()));
@@ -121,7 +118,6 @@ public class MetricItemRepository {
             metric.setCategory(metricCategory);
             metric.setValue(Float.parseFloat(metricValue));
             metric.setThreshold(Float.parseFloat(metricThreshold));
-            metric.setWeight(Float.parseFloat(metricWeight));
             metric.setId(JenaUtils.parseId(metricResource.getURI()));
             return metric;
         } finally {
@@ -153,7 +149,6 @@ public class MetricItemRepository {
                     metric.setDescription(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString())));
                     metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());
                     metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getObject().asResource().getURI().substring(namespace.length())));
-                    metric.setWeight(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getObject().asResource().getURI().substring(namespace.length())));
                     metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getObject().asResource().getURI().substring(namespace.length())));
                     metric.setId(JenaUtils.parseId(metricResource.getURI()));
                     metrics.add(metric);
@@ -191,93 +186,111 @@ public class MetricItemRepository {
     }
 
     public void updateValue(float newValue, String metricId) {
-
         String metricURI = namespace + metricId;
         Resource metricResource = ResourceFactory.createResource(metricURI);
 
         dataset.begin(ReadWrite.WRITE);
         try {
-            // update metric value
             Model model = dataset.getDefaultModel();
             if (!model.containsResource(metricResource)) {
                 throw new IllegalArgumentException("Metric with ID " + metricId + " does not exist in the dataset.");
             }
+
+            // Update metric value
             model.removeAll(metricResource, ResourceFactory.createProperty(namespace + "metricValue"), null);
             model.add(metricResource, ResourceFactory.createProperty(namespace + "metricValue"),
                     ResourceFactory.createTypedLiteral(newValue));
 
-            System.out.println("----------------------------------");
-            System.out.println("Metric assigned value: " + newValue);
-            System.out.println("----------------------------------");
-
-            // update QFItem values
-            List<Resource> updatedQFItems = new ArrayList<>();
-            ResIterator qfItemIter = model.listSubjectsWithProperty(ResourceFactory.createProperty(namespace + "hasMetric"), metricResource);
+            // Update QFItems
+            List<Resource> qfItemResourcesToUpdate = new ArrayList<>();
+            StmtIterator qfItemIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasMetric"), metricResource);
             while (qfItemIter.hasNext()) {
-                Resource qfItemResource = qfItemIter.next();
-                float qfItemValue = 0.0f;
-                StmtIterator stmtIter = qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasMetric"));
-                while (stmtIter.hasNext()) {
-                    Statement stmt = stmtIter.next();
-                    Resource m = stmt.getObject().asResource();
-                    float metricValue = m.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getFloat();
-                    float metricWeight = m.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getFloat();
-                    qfItemValue += metricValue * metricWeight;
-                    System.out.println("value: " + metricValue);
-                    System.out.println("weight: " + metricWeight);
-                }
-                System.out.println("----------------------------------");
-                System.out.println("QFItem assigned value: " + qfItemValue);
-                System.out.println("----------------------------------");
-                qfItemResource.removeAll(ResourceFactory.createProperty(namespace + "QFItemValue"));
-                qfItemResource.addLiteral(ResourceFactory.createProperty(namespace + "QFItemValue"), qfItemValue);
-                updatedQFItems.add(qfItemResource);
-            }
+                Statement qfItemStmt = qfItemIter.next();
+                Resource qfItemResource = qfItemStmt.getSubject();
 
-            // update connected SIItems
-            List<Statement> statementsToUpdate = new ArrayList<>();
-
-            for (Resource qfItem : updatedQFItems) {
-                StmtIterator stmtIter = model.listStatements((Resource) null, ResourceFactory.createProperty(namespace + "hasQFI"), qfItem);
-                while (stmtIter.hasNext()) {
-                    Statement stmt = stmtIter.next();
-                    Resource siItemResource = stmt.getSubject();
-                    float siItemValue = 0.0f;
-                    StmtIterator stmtIter2 = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasQFI"));
-                    while (stmtIter2.hasNext()) {
-                        Statement stmt2 = stmtIter2.next();
-                        Resource qfItemResource = stmt2.getObject().asResource();
-                        float qfItemValue = qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getFloat();
-                        float qfItemWeight = qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getFloat();
-                        siItemValue += qfItemValue * qfItemWeight;
-                        System.out.println("value: " + qfItemValue);
-                        System.out.println("weight: " + qfItemWeight);
+                StmtIterator weightIter = model.listStatements(qfItemResource, ResourceFactory.createProperty(namespace + "hasWeightedMetric"), (RDFNode) null);
+                while (weightIter.hasNext()) {
+                    Statement weightStmt = weightIter.next();
+                    Resource weightResource = weightStmt.getSubject();
+                    Resource nestedMetricResource = weightResource.getProperty(ResourceFactory.createProperty(namespace + "hasMetric")).getObject().asResource();
+                    if (nestedMetricResource.equals(metricResource)) {
+                        qfItemResourcesToUpdate.add(qfItemResource);
+                        break;
                     }
-
-                    System.out.println("----------------------------------");
-                    System.out.println("SIItem assigned value: " + siItemValue);
-                    System.out.println("----------------------------------");
-
-                    Property siItemValueProperty = ResourceFactory.createProperty(namespace + "SIItemValue");
-                    Statement updatedStmt = ResourceFactory.createStatement(siItemResource, siItemValueProperty, ResourceFactory.createTypedLiteral(siItemValue));
-                    statementsToUpdate.add(updatedStmt);
                 }
             }
 
-            try {
-                for (Statement statement : statementsToUpdate) {
-                    model.remove(statement);
-                    model.add(statement);
+            for (Resource qfItemResource : qfItemResourcesToUpdate) {
+                float qfItemValue = computeQFItemValue(qfItemResource);
+
+                model.removeAll(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemValue"), null);
+                model.add(qfItemResource, ResourceFactory.createProperty(namespace + "QFItemValue"),
+                        ResourceFactory.createTypedLiteral(qfItemValue));
+            }
+
+            // Update SIItems
+            for (Resource qfItemResource : qfItemResourcesToUpdate) {
+                List<Resource> siItemResourcesToUpdate = new ArrayList<>();
+                StmtIterator siItemIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasQFI"), qfItemResource);
+                while (siItemIter.hasNext()) {
+                    Statement siItemStmt = siItemIter.next();
+                    Resource siItemResource = siItemStmt.getSubject();
+
+                    StmtIterator weightIter = model.listStatements(siItemResource, ResourceFactory.createProperty(namespace + "hasWeightedQFItem"), (RDFNode) null);
+                    while (weightIter.hasNext()) {
+                        Statement weightStmt = weightIter.next();
+                        Resource weightedQFItemResource = weightStmt.getSubject();
+                        Resource nestedQFItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
+                        if (nestedQFItemResource.equals(qfItemResource)) {
+                            siItemResourcesToUpdate.add(siItemResource);
+                            break;
+                        }
+                    }
                 }
 
-                dataset.commit();
-            } catch (Exception e) {
-                dataset.abort();
-                throw e;
+                for (Resource siItemResource : siItemResourcesToUpdate) {
+                    float siItemValue = computeSIItemValue(siItemResource);
+
+                    model.removeAll(siItemResource, ResourceFactory.createProperty(namespace + "SIItemValue"), null);
+                    model.add(siItemResource, ResourceFactory.createProperty(namespace + "SIItemValue"),
+                            ResourceFactory.createTypedLiteral(siItemValue));
+                }
             }
+
+            dataset.commit();
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
+    }
+
+    private float computeQFItemValue(Resource qfItemResource) {
+        float qfItemValue = 0.0f;
+        StmtIterator stmtIter = qfItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasWeightedMetric"));
+        while (stmtIter.hasNext()) {
+            Statement stmt = stmtIter.next();
+            Resource weightedMetricResource = stmt.getObject().asResource();
+            Resource metricResource = weightedMetricResource.getProperty(ResourceFactory.createProperty(namespace + "hasMetric")).getObject().asResource();
+            float metricValue = metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getFloat();
+            float metricWeight = weightedMetricResource.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getFloat();
+            qfItemValue += metricValue * metricWeight;
+        }
+        return qfItemValue;
+    }
+
+    private float computeSIItemValue(Resource siItemResource) {
+        float siItemValue = 0.0f;
+        StmtIterator stmtIter = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasWeightedQFItem"));
+        while (stmtIter.hasNext()) {
+            Statement stmt = stmtIter.next();
+            Resource weightedQFItemResource = stmt.getObject().asResource();
+            Resource qfItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
+            float qfItemValue = qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getFloat();
+            float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getFloat();
+            siItemValue += qfItemValue * qfItemWeight;
+        }
+        return siItemValue;
     }
 }
