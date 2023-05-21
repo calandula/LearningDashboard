@@ -29,6 +29,9 @@ public class QRConnectController {
     @Autowired
     private GithubEntitiesRepository githubEntitiesRepository;
 
+    @Autowired
+    private TaigaEntitiesRepository taigaEntitiesRepository;
+
 
     @GetMapping("/connect")
     public ResponseEntity<Object> retrieveData(@RequestBody QRConnectDto request) throws IOException {
@@ -51,7 +54,7 @@ public class QRConnectController {
                     return ResponseEntity.ok().body(objectName + " data retrieved successfully");
                 }
             case "TaigaDataSource":
-                githubEntitiesRepository.retrieveData(objectName, dataSourceId);
+                taigaEntitiesRepository.retrieveData(objectName, dataSourceId);
                 return ResponseEntity.ok().body(objectName + " data retrieved successfully");
         }
 

@@ -196,27 +196,21 @@ public class MetricItemRepository {
                 throw new IllegalArgumentException("Metric with ID " + metricId + " does not exist in the dataset.");
             }
 
-            // Update metric value
             model.removeAll(metricResource, ResourceFactory.createProperty(namespace + "metricValue"), null);
             model.add(metricResource, ResourceFactory.createProperty(namespace + "metricValue"),
                     ResourceFactory.createTypedLiteral(newValue));
 
-            // Update QFItems
             List<Resource> qfItemResourcesToUpdate = new ArrayList<>();
-            StmtIterator qfItemIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasMetric"), metricResource);
-            while (qfItemIter.hasNext()) {
-                Statement qfItemStmt = qfItemIter.next();
-                Resource qfItemResource = qfItemStmt.getSubject();
+            StmtIterator weightIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasMetric"), metricResource);
+            while (weightIter.hasNext()) {
+                Statement weightStmt = weightIter.next();
+                Resource weightResource = weightStmt.getSubject();
 
-                StmtIterator weightIter = model.listStatements(qfItemResource, ResourceFactory.createProperty(namespace + "hasWeightedMetric"), (RDFNode) null);
-                while (weightIter.hasNext()) {
-                    Statement weightStmt = weightIter.next();
-                    Resource weightResource = weightStmt.getSubject();
-                    Resource nestedMetricResource = weightResource.getProperty(ResourceFactory.createProperty(namespace + "hasMetric")).getObject().asResource();
-                    if (nestedMetricResource.equals(metricResource)) {
-                        qfItemResourcesToUpdate.add(qfItemResource);
-                        break;
-                    }
+                StmtIterator qfItemIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasWeightedMetric"), weightResource);
+                while (qfItemIter.hasNext()) {
+                    Statement qfItemStmt = qfItemIter.next();
+                    Resource qfItemResource = qfItemStmt.getSubject();
+                    qfItemResourcesToUpdate.add(qfItemResource);
                 }
             }
 
@@ -228,23 +222,18 @@ public class MetricItemRepository {
                         ResourceFactory.createTypedLiteral(qfItemValue));
             }
 
-            // Update SIItems
             for (Resource qfItemResource : qfItemResourcesToUpdate) {
                 List<Resource> siItemResourcesToUpdate = new ArrayList<>();
-                StmtIterator siItemIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasQFI"), qfItemResource);
-                while (siItemIter.hasNext()) {
-                    Statement siItemStmt = siItemIter.next();
-                    Resource siItemResource = siItemStmt.getSubject();
+                StmtIterator SIItemWeightIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasQFItem"), qfItemResource);
+                while (SIItemWeightIter.hasNext()) {
+                    Statement SIItemWeightStmt = SIItemWeightIter.next();
+                    Resource SIItemWeightResource = SIItemWeightStmt.getSubject();
 
-                    StmtIterator weightIter = model.listStatements(siItemResource, ResourceFactory.createProperty(namespace + "hasWeightedQFItem"), (RDFNode) null);
-                    while (weightIter.hasNext()) {
-                        Statement weightStmt = weightIter.next();
-                        Resource weightedQFItemResource = weightStmt.getSubject();
-                        Resource nestedQFItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
-                        if (nestedQFItemResource.equals(qfItemResource)) {
-                            siItemResourcesToUpdate.add(siItemResource);
-                            break;
-                        }
+                    StmtIterator SIItemIter = model.listStatements(null, ResourceFactory.createProperty(namespace + "hasWeightedQFItem"), SIItemWeightResource);
+                    while (SIItemIter.hasNext()) {
+                        Statement SIItemStmt = SIItemIter.next();
+                        Resource SIItemResource = SIItemStmt.getSubject();
+                        siItemResourcesToUpdate.add(SIItemResource);
                     }
                 }
 
@@ -274,7 +263,7 @@ public class MetricItemRepository {
             Resource weightedMetricResource = stmt.getObject().asResource();
             Resource metricResource = weightedMetricResource.getProperty(ResourceFactory.createProperty(namespace + "hasMetric")).getObject().asResource();
             float metricValue = metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getFloat();
-            float metricWeight = weightedMetricResource.getProperty(ResourceFactory.createProperty(namespace + "metricWeight")).getFloat();
+            float metricWeight = weightedMetricResource.getProperty(ResourceFactory.createProperty(namespace + "weightValue")).getFloat();
             qfItemValue += metricValue * metricWeight;
         }
         return qfItemValue;
@@ -288,7 +277,7 @@ public class MetricItemRepository {
             Resource weightedQFItemResource = stmt.getObject().asResource();
             Resource qfItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
             float qfItemValue = qfItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemValue")).getFloat();
-            float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "QFItemWeight")).getFloat();
+            float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "weightValue")).getFloat();
             siItemValue += qfItemValue * qfItemWeight;
         }
         return siItemValue;
