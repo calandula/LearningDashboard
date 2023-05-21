@@ -11,14 +11,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QREvalDto {
-
     @NotBlank
     private String dsId;
-
     @NotBlank
     private String metricId;
-
     @NotBlank
     private String method;
+    private String target = "general";
 
 }

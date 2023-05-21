@@ -32,11 +32,15 @@ public class QREvalController {
     @Autowired
     private GithubEntitiesRepository githubEntitiesRepository;
 
+    @Autowired
+    private TaigaEntitiesRepository taigaEntitiesRepository;
+
     @GetMapping("/eval")
     public ResponseEntity<Object> retrieveData(@RequestBody QREvalDto request) {
         String dataSourceId = request.getDsId();
         String method = request.getMethod();
         String metricId = request.getMetricId();
+        String target = request.getTarget();
 
         String dataSourceClassName = dataSourceRepository.getClass(dataSourceId);
         if (dataSourceClassName == null) {
@@ -47,13 +51,13 @@ public class QREvalController {
 
         System.out.println(dataSourceClassName);
         switch (dataSourceClassName) {
-            case "DataSource", "GithubDataSource":
+            case "GithubDataSource":
                 if (githubEntitiesRepository.supportsMethod(method)) {
-                    newValue = githubEntitiesRepository.computeMetric(dataSourceId, method);
+                    newValue = githubEntitiesRepository.computeMetric(dataSourceId, method, target);
                 }
             case "TaigaDataSource":
-                if (githubEntitiesRepository.supportsMethod(method)) {
-                    newValue = githubEntitiesRepository.computeMetric(dataSourceId, method);
+                if (taigaEntitiesRepository.supportsMethod(method)) {
+                    newValue = taigaEntitiesRepository.computeMetric(dataSourceId, method, target);
                 }
         }
 

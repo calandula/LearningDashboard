@@ -44,18 +44,24 @@ public class QRConnectController {
         }
 
         switch (dataSourceClassName) {
-            case "DataSource", "GithubDataSource":
+            case "GithubDataSource":
                 if (githubEntitiesRepository.supportsObject(objectName)) {
                     try {
                         githubEntitiesRepository.retrieveData(objectName, dataSourceId);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    return ResponseEntity.ok().body(objectName + " data retrieved successfully");
+                    return ResponseEntity.ok().body(objectName + " data retrieved successfully from GitHub");
                 }
             case "TaigaDataSource":
-                taigaEntitiesRepository.retrieveData(objectName, dataSourceId);
-                return ResponseEntity.ok().body(objectName + " data retrieved successfully");
+                if (taigaEntitiesRepository.supportsObject(objectName)) {
+                    try {
+                        taigaEntitiesRepository.retrieveData(objectName, dataSourceId);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return ResponseEntity.ok().body(objectName + " data retrieved successfully from Taiga");
+                }
         }
 
         return ResponseEntity.ok().body("data could not be retrieved");
