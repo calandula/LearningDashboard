@@ -67,9 +67,9 @@ public class DataSourceService {
     }
 
     public TaigaDataSourceDto createTaigaDataSource(TaigaDataSourceDto ds) {
-        String backlogId = ds.getBacklogID();
+        String project = ds.getProject();
         TaigaDataSourceDto taigaDataSource = new TaigaDataSourceDto();
-        taigaDataSource.setBacklogID(backlogId);
+        taigaDataSource.setProject(project);
         String accessToken = ds.getAccessToken();
         taigaDataSource.setAccessToken(accessToken);
         String generatedId = UUID.randomUUID().toString();
@@ -93,7 +93,7 @@ public class DataSourceService {
     public TaigaDataSourceDto updateTaigaDataSourceById(String dsId, TaigaDataSourceDto ds) {
         TaigaDataSourceDto existingDataSource = (TaigaDataSourceDto) dataSourceRepository.findById(dsId);
         if (existingDataSource != null) {
-            existingDataSource.setBacklogID(ds.getBacklogID());
+            existingDataSource.setProject(ds.getProject());
             dataSourceRepository.save(existingDataSource, dsId);
         }
         return existingDataSource;

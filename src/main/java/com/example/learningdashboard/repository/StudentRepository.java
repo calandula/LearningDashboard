@@ -2,6 +2,7 @@ package com.example.learningdashboard.repository;
 
 import com.example.learningdashboard.dtos.StudentDto;
 import com.example.learningdashboard.utils.JenaUtils;
+import com.example.learningdashboard.utils.Membership;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -28,14 +29,23 @@ public class StudentRepository {
     public List<StudentDto> findAll() {
         List<StudentDto> students = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
+        Model model = dataset.getDefaultModel();
         try {
             dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "Student"))
                     .forEachRemaining(studentResource -> {
                         StudentDto student = new StudentDto();
                         student.setName(studentResource.getProperty(ResourceFactory.createProperty(namespace + "studentName")).getString());
-                        student.setMemberships((ArrayList<String>) studentResource.listProperties(ResourceFactory.createProperty(namespace + "hasMembership"))
-                                .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                                .mapWith(Resource::getLocalName).toList());
+                        ArrayList<Membership<String, String>> memberships = new ArrayList<>();
+                        StmtIterator membershipIter = model.listStatements(studentResource, ResourceFactory.createProperty(namespace + "hasMembership"), (RDFNode) null);
+                        while (membershipIter.hasNext()) {
+                            Statement stmt = membershipIter.next();
+                            Resource membershipResource = stmt.getObject().asResource();
+                            Resource dsResource = membershipResource.getProperty(ResourceFactory.createProperty(namespace + "sourceDS")).getObject().asResource();
+                            String username = membershipResource.getProperty(ResourceFactory.createProperty(namespace + "membershipUsername")).getString();
+                            String metricId = JenaUtils.parseId(dsResource.getURI());
+                            memberships.add(new Membership<>(metricId, username));
+                        }
+                        student.setMemberships(memberships);
                         student.setId(JenaUtils.parseId(studentResource.getURI()));
                         students.add(student);
                     });
@@ -61,13 +71,20 @@ public class StudentRepository {
 
             String studentName = model.getProperty(studentResource, model.createProperty(namespace + "studentName"))
                     .getString();
-            List<String> memberships = model.listObjectsOfProperty(studentResource, model.createProperty(namespace + "hasMembership"))
-                    .mapWith(resource -> resource.asResource().getURI().substring(namespace.length()))
-                    .toList();
+            ArrayList<Membership<String, String>> memberships = new ArrayList<>();
+            StmtIterator membershipIter = model.listStatements(studentResource, ResourceFactory.createProperty(namespace + "hasMembership"), (RDFNode) null);
+            while (membershipIter.hasNext()) {
+                Statement stmt = membershipIter.next();
+                Resource membershipResource = stmt.getObject().asResource();
+                Resource dsResource = membershipResource.getProperty(ResourceFactory.createProperty(namespace + "sourceDS")).getObject().asResource();
+                String username = membershipResource.getProperty(ResourceFactory.createProperty(namespace + "membershipUsername")).getString();
+                String dsId = JenaUtils.parseId(dsResource.getURI());
+                memberships.add(new Membership<>(dsId, username));
+            }
 
             StudentDto student = new StudentDto();
             student.setName(studentName);
-            student.setMemberships((ArrayList<String>) memberships);
+            student.setMemberships(memberships);
             student.setId(JenaUtils.parseId(studentResource.getURI()));
             return student;
         } finally {
@@ -82,20 +99,9 @@ public class StudentRepository {
         Resource studentClass = ResourceFactory.createResource(namespace + "Student");
         dataset.begin(ReadWrite.WRITE);
         try {
-            if (!student.getMemberships().isEmpty()) {
-                List<Resource> studentResources = student.getMemberships().stream()
-                        .map(membershipId -> ResourceFactory.createResource(namespace + membershipId))
-                        .filter(membershipResource -> dataset.getDefaultModel().containsResource(membershipResource))
-                        .toList();
-                if (studentResources.size() != student.getMemberships().size()) {
-                    throw new IllegalArgumentException("One or more membership IDs do not exist in the dataset.");
-                }
+            checkIds(student);
 
-                studentResources.forEach(membershipResource ->
-                        dataset.getDefaultModel().add(studentResource,
-                                ResourceFactory.createProperty(namespace + "hasMembership"),
-                                membershipResource));
-            }
+            createMemberships(student, studentResource);
 
             dataset.getDefaultModel()
                     .add(studentResource, RDF.type, studentClass)
@@ -111,42 +117,34 @@ public class StudentRepository {
         }
     }
 
-    public List<StudentDto> findByProject(String projectId) {
-        String projectURI = namespace + projectId;
-        Resource projectResource = ResourceFactory.createResource(projectURI);
-        dataset.begin(ReadWrite.READ);
-        try {
-            Model model = dataset.getDefaultModel();
+    private void createMemberships(StudentDto student, Resource studentResource) {
+        for (Membership<String, String> membershipPair : student.getMemberships()) {
+            String dsId = membershipPair.getId();
+            String username = membershipPair.getUsername();
 
-            if (!model.containsResource(projectResource)) {
-                return null;
-            }
+            String membershipId = UUID.randomUUID().toString();
+            String membershipURI = namespace + membershipId;
+            Resource membershipResource = ResourceFactory.createResource(membershipURI);
+            Resource membershipClass = ResourceFactory.createResource(namespace + "Membership");
+            dataset.getDefaultModel().add(membershipResource, RDF.type, membershipClass);
+            dataset.getDefaultModel().add(membershipResource, ResourceFactory.createProperty(namespace + "membershipUsername"), username);
+            dataset.getDefaultModel().add(studentResource, ResourceFactory.createProperty(namespace + "hasMembership"), membershipResource);
 
-            List<StudentDto> students = new ArrayList<>();
-
-            StmtIterator stmtIterator = model.listStatements(projectResource, model.createProperty(namespace + "hasStudent"), (RDFNode) null);
-            while (stmtIterator.hasNext()) {
-                Resource studentResource = stmtIterator.next().getObject().asResource();
-
-                StudentDto student = new StudentDto();
-                student.setName(studentResource.getProperty(ResourceFactory.createProperty(namespace + "studentName")).getString());
-                student.setMemberships((ArrayList<String>) studentResource.listProperties(ResourceFactory.createProperty(namespace + "hasMembership"))
-                        .mapWith(Statement::getObject).mapWith(RDFNode::asResource)
-                        .mapWith(Resource::getLocalName).toList());
-                student.setId(JenaUtils.parseId(studentResource.getURI()));
-
-                students.add(student);
-            }
-
-            dataset.commit();
-            return students;
-        } catch (Exception e) {
-            dataset.abort();
-            throw e;
-        } finally {
-            dataset.end();
+            Resource dsResource = ResourceFactory.createResource(namespace + dsId);
+            dataset.getDefaultModel().add(membershipResource, ResourceFactory.createProperty(namespace + "sourceDS"), dsResource);
         }
     }
+
+    private void checkIds(StudentDto student) {
+        List<Resource> dsResources = student.getMemberships().stream()
+                .map(membershipPair -> ResourceFactory.createResource(namespace + membershipPair.getId()))
+                .filter(membershipResource -> dataset.getDefaultModel().containsResource(membershipResource))
+                .toList();
+        if (dsResources.size() != student.getMemberships().size()) {
+            throw new IllegalArgumentException("One or more datasource IDs do not exist in the dataset.");
+        }
+    }
+
 
     public void deleteById(String studentId, boolean update) {
         String studentURI = namespace + studentId;
@@ -167,35 +165,6 @@ public class StudentRepository {
         } catch (Exception e) {
             dataset.abort();
             throw e;
-        }
-    }
-
-    public void assignMembership(String studentId, String savedMembershipId) {
-        String studentURI = namespace + studentId;
-        Resource studentResource = ResourceFactory.createResource(studentURI);
-        Resource membershipResource = ResourceFactory.createResource(savedMembershipId);
-        dataset.begin(ReadWrite.WRITE);
-        try {
-            // Check if the student and membership exist in the dataset
-            if (!dataset.getDefaultModel().containsResource(studentResource)) {
-                throw new RuntimeException("Student with ID " + studentId + " does not exist");
-            }
-            if (!dataset.getDefaultModel().containsResource(membershipResource)) {
-                throw new RuntimeException("Membership with ID " + savedMembershipId + " does not exist");
-            }
-
-            // Create a hasMembership relation between the student and membership
-            Resource student = dataset.getDefaultModel().getResource(studentId);
-            Resource membership = dataset.getDefaultModel().getResource(savedMembershipId);
-            Property hasMembership = dataset.getDefaultModel().createProperty(namespace + "hasMembership");
-            student.addProperty(hasMembership, membership);
-
-            dataset.commit();
-        } catch (Exception e) {
-            dataset.abort();
-            throw new RuntimeException(e.getMessage());
-        } finally {
-            dataset.end();
         }
     }
 }

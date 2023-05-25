@@ -56,7 +56,7 @@ public class CategoryItemRepository {
                         CategoryItemDto categoryItem = new CategoryItemDto();
                         categoryItem.setType(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIType")).getString());
                         categoryItem.setColor(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIColor")).getString());
-                        categoryItem.setUpperThreshold(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIUpperThreshold")).getInt());
+                        categoryItem.setUpperThreshold(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIUpperThreshold")).getFloat());
                         categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
                         categoryItems.add(categoryItem);
                     });
@@ -113,17 +113,15 @@ public class CategoryItemRepository {
             StmtIterator it = model.listStatements(categoryResource, ResourceFactory.createProperty(namespace + "hasCategoryItem"), (RDFNode) null);
             while (it.hasNext()) {
                 Statement stmt = it.next();
-                RDFNode qfItemNode = stmt.getObject();
-                if (qfItemNode.isResource()) {
-                    dataset.getDefaultModel().listResourcesWithProperty(RDF.type, ResourceFactory.createResource(namespace + "CategoryItem"))
-                            .forEachRemaining(categoryItemResource -> {
-                                CategoryItemDto categoryItem = new CategoryItemDto();
-                                categoryItem.setColor(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIType")).getString());
-                                categoryItem.setType(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIColor")).getString());
-                                categoryItem.setUpperThreshold(Float.parseFloat(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIUpperThreshold")).getString()));
-                                categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
-                                categoryItemDtos.add(categoryItem);
-                            });
+                RDFNode categoryItemNode = stmt.getObject();
+                if (categoryItemNode.isResource()) {
+                    Resource categoryItemResource = categoryItemNode.asResource();
+                    CategoryItemDto categoryItem = new CategoryItemDto();
+                    categoryItem.setColor(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIType")).getString());
+                    categoryItem.setType(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIColor")).getString());
+                    categoryItem.setUpperThreshold(Float.parseFloat(categoryItemResource.getProperty(ResourceFactory.createProperty(namespace + "CIUpperThreshold")).getString()));
+                    categoryItem.setId(JenaUtils.parseId(categoryItemResource.getURI()));
+                    categoryItemDtos.add(categoryItem);
                 }
             }
 

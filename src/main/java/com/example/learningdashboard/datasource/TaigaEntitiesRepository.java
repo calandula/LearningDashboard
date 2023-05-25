@@ -3,6 +3,8 @@ package com.example.learningdashboard.datasource;
 import com.example.learningdashboard.dtos.TaigaDataSourceDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,9 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Repository
 public class TaigaEntitiesRepository {
 
@@ -45,13 +44,13 @@ public class TaigaEntitiesRepository {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    private final String baseUrl = "https://api.taiga.io";
+    private final String baseUrl = "https://api.taiga.io/api/v1";
 
     private static final String USER_STORIES_OBJECT = "user_stories";
     private static final String TASKS_OBJECT = "tasks";
-
     private static final String STORY_POINTS = "story_points";
     private static final String TASK_COUNT = "task_count";
+    private static final String USERSTORY_COUNT = "userstory_count";
 
     public void saveUserStories(String datasourceId, List<UserStory> userStories) {
         dataset.begin(ReadWrite.WRITE);
@@ -59,11 +58,10 @@ public class TaigaEntitiesRepository {
         Resource datasourceResource = model.createResource(namespace + datasourceId);
 
         for (UserStory userStory : userStories) {
-            Resource storyResource = model.createResource(namespace + userStory.getId());
+            Resource storyResource = model.createResource(namespace + UUID.randomUUID());
             model.add(storyResource, RDF.type, model.createResource(namespace + "UserStory"));
             model.add(datasourceResource, model.createProperty(namespace + "hasUserStory"), storyResource);
             model.add(storyResource, model.createProperty(namespace + "userstorySubject"), model.createTypedLiteral(userStory.getSubject()));
-            model.add(storyResource, model.createProperty(namespace + "userstoryDescription"), model.createTypedLiteral(userStory.getDescription()));
             model.add(storyResource, model.createProperty(namespace + "userstoryIsBlocked"), model.createTypedLiteral(userStory.getIsBlocked()));
             model.add(storyResource, model.createProperty(namespace + "userstoryIsClosed"), model.createTypedLiteral(userStory.getIsClosed()));
             Resource membership = getMembershipResourceByUsername(model, userStory.getAssignedTo());
@@ -81,7 +79,7 @@ public class TaigaEntitiesRepository {
         Resource datasourceResource = model.createResource(namespace + datasourceId);
 
         for (Task task : tasks) {
-            Resource taskResource = model.createResource(namespace + task.getId());
+            Resource taskResource = model.createResource(namespace + UUID.randomUUID());
             model.add(taskResource, RDF.type, model.createResource(namespace + "Task"));
             model.add(datasourceResource, model.createProperty(namespace + "hasTask"), taskResource);
             model.add(taskResource, model.createProperty(namespace + "taskSubject"), model.createTypedLiteral(task.getSubject()));
@@ -119,7 +117,7 @@ public class TaigaEntitiesRepository {
         dataset.commit();
 
         switch(operation) {
-            case STORY_POINTS -> {
+            case USERSTORY_COUNT -> {
                 float totalStoryPoints = 0f;
                 while (userStoriesIter.hasNext()) {
                     Statement stmt = userStoriesIter.next();
@@ -146,18 +144,19 @@ public class TaigaEntitiesRepository {
         if (USER_STORIES_OBJECT.equals(objectName)) {
             List<UserStory> userStories = retrieveUserStories(ds);
             saveUserStories(dataSourceId, userStories);
-            System.out.println(userStories);
         } else if (TASKS_OBJECT.equals(objectName)) {
             List<Task> tasks = retrieveTasks(ds);
             saveTasks(dataSourceId, tasks);
-            System.out.println(tasks);
         } else {
             throw new IllegalArgumentException("Unsupported object name: " + objectName);
         }
     }
 
     public List<Task> retrieveTasks(TaigaDataSourceDto ds) throws IOException {
-        String url = baseUrl + "/tasks";
+
+        int project_id = get_project_id(ds);
+
+        String url = baseUrl + "/tasks?project=" + project_id;
         String responseJson = makeApiRequest(url, ds.getAccessToken());
 
         JsonNode jsonNode = objectMapper.readTree(responseJson);
@@ -180,7 +179,9 @@ public class TaigaEntitiesRepository {
     }
 
     public List<UserStory> retrieveUserStories(TaigaDataSourceDto ds) throws IOException {
-        String url = baseUrl + "/userstories";
+        int project_id = get_project_id(ds);
+
+        String url = baseUrl + "/userstories?project=" + project_id;
         String responseJson = makeApiRequest(url, ds.getAccessToken());
 
         JsonNode jsonNode = objectMapper.readTree(responseJson);
@@ -190,7 +191,6 @@ public class TaigaEntitiesRepository {
             UserStory userStory = new UserStory();
             userStory.setId(String.valueOf(UUID.randomUUID()));
             userStory.setSubject(userStoryNode.get("subject").asText());
-            userStory.setDescription(userStoryNode.get("description").asText());
             JsonNode assignedToExtraInfoNode = userStoryNode.get("assigned_to_extra_info");
             if (assignedToExtraInfoNode != null && assignedToExtraInfoNode.has("username")) {
                 userStory.setAssignedTo(assignedToExtraInfoNode.get("username").asText());
@@ -201,6 +201,15 @@ public class TaigaEntitiesRepository {
         }
 
         return userStories;
+    }
+
+    private int get_project_id(TaigaDataSourceDto ds) throws IOException {
+        String url = baseUrl + "/projects/by_slug?slug=" + ds.getProject();
+        String responseJson = makeApiRequest(url, ds.getAccessToken());
+
+        JsonNode jsonNode = objectMapper.readTree(responseJson);
+        int project_id = jsonNode.get("id").asInt();
+        return project_id;
     }
 
     private String makeApiRequest(String url, String token) throws IOException {
@@ -218,7 +227,7 @@ public class TaigaEntitiesRepository {
     }
 
     public boolean supportsMethod(String method) {
-        return method.equals(STORY_POINTS) || method.equals(TASK_COUNT);
+        return method.equals(USERSTORY_COUNT) || method.equals(TASK_COUNT);
     }
 
     @Setter

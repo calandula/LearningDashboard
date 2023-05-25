@@ -76,7 +76,7 @@ public class MetricItemRepository {
                         metric.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
                         metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
                         metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
-                        metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());
+                        metric.setCategory(JenaUtils.parseId(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI()));
                         metric.setId(JenaUtils.parseId(metricResource.getURI()));
                         metrics.add(metric);
                     });
@@ -100,17 +100,15 @@ public class MetricItemRepository {
                 return null;
             }
 
-            String metricName = model.getProperty(metricResource, model.createProperty(namespace + "metricName"))
+            String metricName = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricName"))
                     .getString();
-            String metricDescription = model.getProperty(metricResource, model.createProperty(namespace + "metricDescription"))
+            String metricDescription = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricDescription"))
                     .getString();
-            String metricValue = model.getProperty(metricResource, model.createProperty(namespace + "metricValue"))
+            String metricValue = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricValue"))
                     .getString();
-            String metricThreshold = model.getProperty(metricResource, model.createProperty(namespace + "metricThreshold"))
+            String metricThreshold = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricThreshold"))
                     .getString();
-            String metricWeight = model.getProperty(metricResource, model.createProperty(namespace + "metricWeight"))
-                    .getString();
-            String metricCategory = metricResource.getPropertyResourceValue(model.createProperty(namespace + "metricCategory")).getURI();
+            String metricCategory = JenaUtils.parseId(model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricCategory")).getObject().toString());
 
             MetricItemDto metric = new MetricItemDto();
             metric.setName(metricName);
@@ -137,22 +135,20 @@ public class MetricItemRepository {
                 throw new IllegalArgumentException("QFItem with ID " + qfItemId + " does not exist in the dataset.");
             }
 
-            StmtIterator it = model.listStatements(qfItemResource, ResourceFactory.createProperty(namespace + "hasMetric"), (RDFNode) null);
+            StmtIterator it = model.listStatements(qfItemResource, ResourceFactory.createProperty(namespace + "hasWeightedMetric"), (RDFNode) null);
             while (it.hasNext()) {
                 Statement stmt = it.next();
-                RDFNode metricNode = stmt.getObject();
-                if (metricNode.isResource()) {
-                    Resource metricResource = metricNode.asResource();
+                Resource weightedMetricResource = stmt.getObject().asResource();
+                Resource metricResource = weightedMetricResource.getProperty(ResourceFactory.createProperty(namespace + "hasMetric")).getObject().asResource();
 
-                    MetricItemDto metric = new MetricItemDto();
-                    metric.setName(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString())));
-                    metric.setDescription(String.valueOf(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString())));
-                    metric.setCategory(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI());
-                    metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getObject().asResource().getURI().substring(namespace.length())));
-                    metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getObject().asResource().getURI().substring(namespace.length())));
-                    metric.setId(JenaUtils.parseId(metricResource.getURI()));
-                    metrics.add(metric);
-                }
+                MetricItemDto metric = new MetricItemDto();
+                metric.setName(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricName")).getString());
+                metric.setDescription(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricDescription")).getString());
+                metric.setCategory(JenaUtils.parseId(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI()));
+                metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
+                metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
+                metric.setId(JenaUtils.parseId(metricResource.getURI()));
+                metrics.add(metric);
             }
 
             dataset.commit();
@@ -160,6 +156,8 @@ public class MetricItemRepository {
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 

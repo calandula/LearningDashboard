@@ -1,6 +1,5 @@
 package com.example.learningdashboard.controller;
 
-import com.example.learningdashboard.dtos.MembershipDto;
 import com.example.learningdashboard.dtos.StudentDto;
 import com.example.learningdashboard.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,12 +22,6 @@ public class StudentController {
         return new ResponseEntity<>(savedStudent, HttpStatus.CREATED);
     }
 
-    @PostMapping("{id}/membership")
-    public ResponseEntity<MembershipDto> createMembership(@PathVariable("id") String studentId, @RequestBody MembershipDto membership) {
-        MembershipDto savedMembership = studentService.createMembership(studentId, membership);
-        return new ResponseEntity<>(savedMembership, HttpStatus.CREATED);
-    }
-
     @GetMapping
     public ResponseEntity<List<StudentDto>> getAllStudents() {
         List<StudentDto> students = studentService.getAllStudents();
@@ -39,12 +32,6 @@ public class StudentController {
     public ResponseEntity<StudentDto> getStudentById(@PathVariable("id") String studentId) {
         StudentDto student = studentService.getStudentById(studentId);
         return new ResponseEntity<>(student, HttpStatus.OK);
-    }
-
-    @GetMapping("/project/{id}")
-    public ResponseEntity<List<StudentDto>> getStudentsByProject(@PathVariable("id") String projectId) {
-        List<StudentDto> students = studentService.getStudentsByProject(projectId);
-        return new ResponseEntity<>(students, HttpStatus.OK);
     }
 
     @PutMapping("{id}")

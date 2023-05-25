@@ -51,8 +51,8 @@ public class DataSourceRepository {
                             ((GithubDataSourceDto) ds).setOwner(datasourceOwner);
                         } else if (datasourceType.equals("TaigaDataSource")) {
                             ds = new TaigaDataSourceDto();
-                            String backlogId = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceBacklogID")).getString();
-                            ((TaigaDataSourceDto) ds).setBacklogID(backlogId);
+                            String project = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceProject")).getString();
+                            ((TaigaDataSourceDto) ds).setProject(project);
                         } else {
                             ds = new DataSourceDto();
                         }
@@ -118,9 +118,9 @@ public class DataSourceRepository {
                 ((GithubDataSourceDto) ds).setOwner(datasourceOwner);
             } else if (datasourceType.equals("TaigaDataSource")) {
                 ds = new TaigaDataSourceDto();
-                String backlogId = model.getProperty(dsResource, model.createProperty(namespace + "datasourceBacklogID"))
+                String project = model.getProperty(dsResource, model.createProperty(namespace + "datasourceProject"))
                         .getString();
-                ((TaigaDataSourceDto) ds).setBacklogID(backlogId);
+                ((TaigaDataSourceDto) ds).setProject(project);
             } else {
                 ds = new DataSourceDto();
             }
@@ -154,8 +154,8 @@ public class DataSourceRepository {
                                 ResourceFactory.createPlainLiteral(((GithubDataSourceDto) ds).getOwner()));
             } else if (ds instanceof TaigaDataSourceDto) {
                 dataset.getDefaultModel()
-                        .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceBacklogID"),
-                                ResourceFactory.createPlainLiteral(((TaigaDataSourceDto) ds).getBacklogID()));
+                        .add(dsResource, ResourceFactory.createProperty(namespace + "datasourceProject"),
+                                ResourceFactory.createPlainLiteral(((TaigaDataSourceDto) ds).getProject()));
             }
 
             dataset.commit();
@@ -193,8 +193,8 @@ public class DataSourceRepository {
                     ((GithubDataSourceDto) ds).setOwner(datasourceOwner);
                 } else if (datasourceType.equals("TaigaDataSource")) {
                     ds = new TaigaDataSourceDto();
-                    String backlogId = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceBacklogID")).getString();
-                    ((TaigaDataSourceDto) ds).setBacklogID(backlogId);
+                    String project = dsResource.getProperty(ResourceFactory.createProperty(namespace + "datasourceProject")).getString();
+                    ((TaigaDataSourceDto) ds).setProject(project);
                 } else {
                     ds = new DataSourceDto();
                 }

@@ -34,7 +34,7 @@ public class QFItemController {
         return new ResponseEntity<>(qfi, HttpStatus.OK);
     }
 
-    @GetMapping("/sii/{id}")
+    @GetMapping("/siitem/{id}")
     public ResponseEntity<List<QFItemDto>> getQFItemBySIItem(@PathVariable("id") String siItemId) {
         List<QFItemDto> qfis = qfItemService.getQFItemBySIItem(siItemId);
         return new ResponseEntity<>(qfis, HttpStatus.OK);

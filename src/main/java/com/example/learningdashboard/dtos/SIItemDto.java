@@ -1,9 +1,8 @@
 package com.example.learningdashboard.dtos;
 
-import com.example.learningdashboard.utils.SerializablePair;
+import com.example.learningdashboard.utils.Weight;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,5 +30,5 @@ public class SIItemDto {
     private String category;
 
     @NotEmpty
-    private ArrayList<SerializablePair<String, Float>> qfItemWeights;
+    private ArrayList<Weight<String, Float>> qfItemWeights;
 }

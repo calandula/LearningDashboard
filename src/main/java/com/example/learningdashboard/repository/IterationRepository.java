@@ -128,13 +128,11 @@ public class IterationRepository {
             String iterationName = model.getProperty(iterationResource, model.createProperty(namespace + "iterationName"))
                     .getString();
 
-            Statement subjectStatement = iterationResource.getProperty(ResourceFactory.createProperty(namespace + "iterationSubject"));
-            if (subjectStatement != null) {
-                iteration.setSubject(subjectStatement.getString());
+            Statement subject = model.getProperty(iterationResource, model.createProperty(namespace + "iterationSubject"));
+            if (subject.getObject() != null) {
+                iteration.setSubject(subject.getObject().toString());
             }
 
-            String iterationSubject = model.getProperty(iterationResource, model.createProperty(namespace + "iterationSubject"))
-                    .getString();
             String iterationFrom = model.getProperty(iterationResource, model.createProperty(namespace + "iterationFrom"))
                     .getString();
             String iterationTo = model.getProperty(iterationResource, model.createProperty(namespace + "iterationTo"))
@@ -144,7 +142,6 @@ public class IterationRepository {
                     .toList();
 
             iteration.setName(iterationName);
-            iteration.setSubject(iterationSubject);
             iteration.setFrom(LocalDate.parse(iterationFrom));
             iteration.setTo(LocalDate.parse(iterationTo));
             iteration.setAssociatedProjects((ArrayList<String>) associatedProjects);

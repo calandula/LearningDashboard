@@ -34,7 +34,7 @@ public class MetricItemController {
         return new ResponseEntity<>(metric, HttpStatus.OK);
     }
 
-    @GetMapping("/item/{id}")
+    @GetMapping("/qfitem/{id}")
     public ResponseEntity<List<MetricItemDto>> getMetricsByQFItem(@PathVariable("id") String qfItemId) {
         List<MetricItemDto> metric = metricService.getMetricByQFItem(qfItemId);
         return new ResponseEntity<>(metric, HttpStatus.OK);

@@ -1,8 +1,9 @@
 package com.example.learningdashboard.repository;
 
+import com.example.learningdashboard.dtos.QFItemDto;
 import com.example.learningdashboard.dtos.SIItemDto;
 import com.example.learningdashboard.utils.JenaUtils;
-import com.example.learningdashboard.utils.SerializablePair;
+import com.example.learningdashboard.utils.Weight;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
@@ -85,7 +86,7 @@ public class SIItemRepository {
     }
 
     private void createWeights(SIItemDto siItem, Resource siItemResource) {
-        for (SerializablePair<String, Float> qfItemPair : siItem.getQfItemWeights()) {
+        for (Weight<String, Float> qfItemPair : siItem.getQfItemWeights()) {
             String qfItemId = qfItemPair.getId();
             float weight = qfItemPair.getWeight();
 
@@ -106,7 +107,7 @@ public class SIItemRepository {
         double weightedSum = 0.0;
         double totalWeight = 0.0;
 
-        for (SerializablePair<String, Float> qfItemTuple : siItem.getQfItemWeights()) {
+        for (Weight<String, Float> qfItemTuple : siItem.getQfItemWeights()) {
             String qfItemId = qfItemTuple.getId();
             float qfItemWeight = qfItemTuple.getWeight();
 
@@ -137,7 +138,7 @@ public class SIItemRepository {
     private void checkWeight(SIItemDto siItem) {
         double totalWeight;
         totalWeight = 0.0f;
-        for (SerializablePair<String, Float> qfItemPair : siItem.getQfItemWeights()) {
+        for (Weight<String, Float> qfItemPair : siItem.getQfItemWeights()) {
             totalWeight += qfItemPair.getWeight();
         }
         if (Math.abs(totalWeight - 1.0) > 0.0001) {
@@ -168,11 +169,11 @@ public class SIItemRepository {
                 SIItemDto siItem = new SIItemDto();
                 siItem.setThreshold(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemThreshold")).getString()));
                 siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemValue")).getString()));
-                siItem.setCategory(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "SIItemCategory")).getURI());
-                siItem.setSourceSI(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "sourceSI")).getURI());
+                siItem.setCategory(JenaUtils.parseId(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "SIItemCategory")).getURI()));
+                siItem.setSourceSI(JenaUtils.parseId(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "sourceSI")).getURI()));
                 siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
 
-                List<SerializablePair<String, Float>> qfItemWeights = new ArrayList<>();
+                ArrayList<Weight<String, Float>> qfItemWeights = new ArrayList<>();
                 StmtIterator qfItemIter = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasWeightedQFItem"));
                 while (qfItemIter.hasNext()) {
                     Statement stmt = qfItemIter.next();
@@ -180,9 +181,9 @@ public class SIItemRepository {
                     Resource qfItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
                     float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "weightValue")).getFloat();
                     String qfItemId = JenaUtils.parseId(qfItemResource.getURI());
-                    qfItemWeights.add(new SerializablePair<>(qfItemId, qfItemWeight));
+                    qfItemWeights.add(new Weight<>(qfItemId, qfItemWeight));
                 }
-                siItem.setQfItemWeights((ArrayList<SerializablePair<String, Float>>) qfItemWeights);
+                siItem.setQfItemWeights(qfItemWeights);
 
                 siItems.add(siItem);
             }
@@ -210,24 +211,22 @@ public class SIItemRepository {
                     .getString();
             String SIItemValue = model.getProperty(siItemResource, model.createProperty(namespace + "SIItemValue"))
                     .getString();
-            String SIItemCategory = model.getProperty(siItemResource, model.createProperty(namespace + "SIItemCategory"))
-                    .getString();
-            String sourceSI = model.getProperty(siItemResource, model.createProperty(namespace + "sourceSI"))
-                    .getString();
-            ArrayList<SerializablePair<String, Float>> qfItemWeights = new ArrayList<>();
-            StmtIterator qfItemIter = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasWeightedQFItem"));
-            while (qfItemIter.hasNext()) {
-                Statement stmt = qfItemIter.next();
+            String SIItemCategory = JenaUtils.parseId(model.getProperty(siItemResource, ResourceFactory.createProperty(namespace + "SIItemCategory")).getObject().toString());
+            String sourceSI = JenaUtils.parseId(model.getProperty(siItemResource, ResourceFactory.createProperty(namespace + "sourceSI")).getObject().toString());
+            ArrayList<Weight<String, Float>> qfItemWeights = new ArrayList<>();
+            StmtIterator it = model.listStatements(siItemResource, ResourceFactory.createProperty(namespace + "hasWeightedQFItem"), (RDFNode) null);
+            while (it.hasNext()) {
+                Statement stmt = it.next();
                 Resource weightedQFItemResource = stmt.getObject().asResource();
                 Resource qfItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
                 float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "weightValue")).getFloat();
                 String qfItemId = JenaUtils.parseId(qfItemResource.getURI());
-                qfItemWeights.add(new SerializablePair<>(qfItemId, qfItemWeight));
+                qfItemWeights.add(new Weight<>(qfItemId, qfItemWeight));
             }
 
             SIItemDto siItem = new SIItemDto();
             siItem.setThreshold(Float.parseFloat(SIItemThreshold));
-            siItem.setQfItemWeights((ArrayList<SerializablePair<String, Float>>) qfItemWeights);
+            siItem.setQfItemWeights(qfItemWeights);
             siItem.setValue(Float.parseFloat(SIItemValue));
             siItem.setCategory(SIItemCategory);
             siItem.setSourceSI(sourceSI);
@@ -261,9 +260,10 @@ public class SIItemRepository {
     }
 
     public List<SIItemDto> findByProject(String projectId) {
+        List<SIItemDto> siItems = new ArrayList<>();
         String projectURI = namespace + projectId;
         Resource projectResource = ResourceFactory.createResource(projectURI);
-        List<SIItemDto> siItems = new ArrayList<>();
+        List<QFItemDto> qfItems = new ArrayList<>();
         dataset.begin(ReadWrite.READ);
         try {
             Model model = dataset.getDefaultModel();
@@ -272,32 +272,30 @@ public class SIItemRepository {
                 throw new IllegalArgumentException("Project with ID " + projectId + " does not exist in the dataset.");
             }
 
-            StmtIterator it = model.listStatements(projectResource, ResourceFactory.createProperty(namespace + "hasHI"), (RDFNode) null);
-            while (it.hasNext()) {
-                Statement stmt = it.next();
-                RDFNode siItemNode = stmt.getObject();
-                if (siItemNode.isResource()) {
-                    Resource siItemResource = siItemNode.asResource();
+            StmtIterator siItemIter = model.listStatements(projectResource, ResourceFactory.createProperty(namespace + "hasSIItem"), (RDFNode) null);
+            while (siItemIter.hasNext()) {
+                Resource siItemResource = siItemIter.next().getObject().asResource();
 
-                    SIItemDto siItem = new SIItemDto();
-                    List<SerializablePair<String, Float>> qfItemWeights = new ArrayList<>();
-                    StmtIterator qfItemIter = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasWeightedQFItem"));
-                    while (qfItemIter.hasNext()) {
-                        Statement stmt2 = qfItemIter.next();
-                        Resource weightedQFItemResource = stmt2.getObject().asResource();
-                        Resource qfItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
-                        float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "weightValue")).getFloat();
-                        String qfItemId = JenaUtils.parseId(qfItemResource.getURI());
-                        qfItemWeights.add(new SerializablePair<>(qfItemId, qfItemWeight));
-                    }
-                    siItem.setThreshold(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemThreshold")).getString()));
-                    siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemValue")).getString()));
-                    siItem.setCategory(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemCategory")).getObject().asResource().getURI().substring(namespace.length()));
-                    siItem.setSourceSI(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "sourceSI")).getObject().asResource().getURI().substring(namespace.length()));
-                    siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
-                    siItem.setQfItemWeights((ArrayList<SerializablePair<String, Float>>) qfItemWeights);
-                    siItems.add(siItem);
+                SIItemDto siItem = new SIItemDto();
+                siItem.setThreshold(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemThreshold")).getString()));
+                siItem.setValue(Float.parseFloat(siItemResource.getProperty(ResourceFactory.createProperty(namespace + "SIItemValue")).getString()));
+                siItem.setCategory(JenaUtils.parseId(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "SIItemCategory")).getURI()));
+                siItem.setSourceSI(JenaUtils.parseId(siItemResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "sourceSI")).getURI()));
+                siItem.setId(JenaUtils.parseId(siItemResource.getURI()));
+
+                ArrayList<Weight<String, Float>> qfItemWeights = new ArrayList<>();
+                StmtIterator qfItemIter = siItemResource.listProperties(ResourceFactory.createProperty(namespace + "hasWeightedQFItem"));
+                while (qfItemIter.hasNext()) {
+                    Statement stmt = qfItemIter.next();
+                    Resource weightedQFItemResource = stmt.getObject().asResource();
+                    Resource qfItemResource = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "hasQFItem")).getObject().asResource();
+                    float qfItemWeight = weightedQFItemResource.getProperty(ResourceFactory.createProperty(namespace + "weightValue")).getFloat();
+                    String qfItemId = JenaUtils.parseId(qfItemResource.getURI());
+                    qfItemWeights.add(new Weight<>(qfItemId, qfItemWeight));
                 }
+                siItem.setQfItemWeights(qfItemWeights);
+
+                siItems.add(siItem);
             }
 
             dataset.commit();
@@ -305,6 +303,8 @@ public class SIItemRepository {
         } catch (Exception e) {
             dataset.abort();
             throw e;
+        } finally {
+            dataset.end();
         }
     }
 }

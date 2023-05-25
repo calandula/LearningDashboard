@@ -1,5 +1,6 @@
 package com.example.learningdashboard.dtos;
 
+import com.example.learningdashboard.utils.Membership;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,5 +18,5 @@ public class StudentDto {
     private String id;
     @NotBlank
     private String name;
-    private ArrayList<String> memberships;
+    private ArrayList<Membership<String, String>> memberships;
 }

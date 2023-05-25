@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class TaigaDataSourceDto extends DataSourceDto {
     @NotBlank
-    private String backlogID;
+    private String project;
 
     public String getType() {
         return "TaigaDataSource";

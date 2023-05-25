@@ -1,6 +1,5 @@
 package com.example.learningdashboard.datasource;
 
-import com.example.learningdashboard.dtos.DataSourceDto;
 import com.example.learningdashboard.dtos.GithubDataSourceDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
 import org.kohsuke.github.*;

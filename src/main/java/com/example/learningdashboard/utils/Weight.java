@@ -2,11 +2,11 @@ package com.example.learningdashboard.utils;
 
 import java.io.Serializable;
 
-public class SerializablePair<L, R> implements Serializable {
+public class Weight<L, R> implements Serializable {
     private L id;
     private R weight;
 
-    public SerializablePair(L id, R weight) {
+    public Weight(L id, R weight) {
         this.id = id;
         this.weight = weight;
     }

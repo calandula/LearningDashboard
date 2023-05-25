@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class GithubEntitiesRepository {
@@ -32,10 +33,8 @@ public class GithubEntitiesRepository {
 
     private static final String ISSUES_OBJECT = "issues";
     private static final String COMMITS_OBJECT = "commits";
-    private static final String NUMBER_COMMITS = "number_commits";
-    private static final String TASK_REFERENCE = "task_reference";
-    private static final String MODIFIED_LINES = "modified_lines";
-    private static final String ANONYMOUS_COMMITS = "anonymous_commits";
+    private static final String ISSUE_COUNT = "issue_count";
+    private static final String COMMIT_COUNT = "commit_count";
 
     public void saveIssues(String datasourceId, List<GHIssue> issues) throws IOException {
         dataset.begin(ReadWrite.WRITE);
@@ -43,7 +42,7 @@ public class GithubEntitiesRepository {
         Resource datasourceResource = model.createResource(namespace + datasourceId);
 
         for (GHIssue issue : issues) {
-            Resource issueResource = model.createResource(namespace + issue.getId());
+            Resource issueResource = model.createResource(namespace + UUID.randomUUID());
             model.add(issueResource, RDF.type, model.createResource(namespace + "Issue"));
             Resource createdBy = getMembershipResourceByUsername(model, issue.getUser().getLogin());
             if (createdBy != null) {
@@ -66,19 +65,16 @@ public class GithubEntitiesRepository {
         Resource datasourceResource = model.createResource(namespace + datasourceId);
 
         for (GHCommit commit : commits) {
-            Resource commitResource = model.createResource(namespace + commit.getSHA1());
+            Resource commitResource = model.createResource(namespace + UUID.randomUUID());
             model.add(commitResource, RDF.type, model.createResource(namespace + "Commit"));
-            model.add(commitResource, model.createProperty(namespace + "commitTaskWritten"), model.createTypedLiteral(true));
-            model.add(commitResource, model.createProperty(namespace + "commitTotal"), model.createTypedLiteral(222));
             Resource assignedTo = getMembershipResourceByUsername(model, commit.getAuthor().getLogin());
             if (assignedTo != null) {
-                model.add(commitResource, model.createProperty(namespace + "commitAssignedTo"), assignedTo);
+                model.add(commitResource, model.createProperty(namespace + "commitCreatedBy"), assignedTo);
             }
             model.add(datasourceResource, model.createProperty(namespace + "hasCommit"), commitResource);
         }
 
         dataset.commit();
-
     }
 
     public float computeMetric(String datasourceId, String operation, String target) {
@@ -90,7 +86,7 @@ public class GithubEntitiesRepository {
         StmtIterator issuesIter = model.listStatements(datasourceResource, model.createProperty(namespace + "hasIssue"), (RDFNode)null);
 
         switch(operation) {
-            case NUMBER_COMMITS -> {
+            case COMMIT_COUNT -> {
                 int commitsCount = 0;
                 while (commitsIter.hasNext()) {
                     commitsIter.next();
@@ -98,28 +94,13 @@ public class GithubEntitiesRepository {
                 }
                 return commitsCount;
             }
-            case TASK_REFERENCE -> {
-                int taskCount = 0;
-                while (commitsIter.hasNext()) {
-                    Statement stmt = commitsIter.next();
-                }
-                return 3f;
-            }
-            case MODIFIED_LINES -> {
+            case ISSUE_COUNT -> {
                 int taskCount = 0;
                 while (commitsIter.hasNext()) {
                     Statement stmt = commitsIter.next();
                 }
                 return 4f;
             }
-            case ANONYMOUS_COMMITS -> {
-                int anonCommitsCount = 0;
-                while (commitsIter.hasNext()) {
-                    Statement stmt = commitsIter.next();
-                }
-                return 4f;
-            }
-
         }
         dataset.commit();
         return 0;
@@ -147,11 +128,9 @@ public class GithubEntitiesRepository {
         if (ISSUES_OBJECT.equals(objectName)) {
             List<GHIssue> issues = repo.getIssues(GHIssueState.ALL);
             saveIssues(dataSourceId, issues);
-            System.out.println(issues);
         } else if (COMMITS_OBJECT.equals(objectName)) {
             List<GHCommit> commits = repo.listCommits().asList();
             saveCommits(dataSourceId, commits);
-            System.out.println(commits);
         } else {
             throw new IllegalArgumentException("Unsupported object name: " + objectName);
         }
@@ -162,6 +141,6 @@ public class GithubEntitiesRepository {
     }
 
     public boolean supportsMethod(String method) {
-        return method.equals(NUMBER_COMMITS) || method.equals(TASK_REFERENCE) || method.equals(MODIFIED_LINES) || method.equals(ANONYMOUS_COMMITS);
+        return method.equals(COMMIT_COUNT) || method.equals(ISSUE_COUNT);
     }
 }
