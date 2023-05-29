@@ -113,8 +113,7 @@ public class QFRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(qfResource, null, (RDFNode) null);
             }
             dataset.commit();

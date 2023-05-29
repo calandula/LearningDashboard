@@ -75,7 +75,6 @@ public class SIItemRepository {
             }
 
 
-
             dataset.commit();
             siItem.setId(siItemId);
             return siItem;
@@ -248,8 +247,7 @@ public class SIItemRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(siItemResource, null, (RDFNode) null);
             }
             dataset.commit();

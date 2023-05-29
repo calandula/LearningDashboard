@@ -1,9 +1,11 @@
-package com.example.learningdashboard.datasource;
+package com.example.learningdashboard.controller;
 
 
 import com.example.learningdashboard.dtos.QREvalDto;
 import com.example.learningdashboard.repository.DataSourceRepository;
+import com.example.learningdashboard.repository.GithubEntitiesRepository;
 import com.example.learningdashboard.repository.MetricItemRepository;
+import com.example.learningdashboard.repository.TaigaEntitiesRepository;
 import org.apache.jena.query.Dataset;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

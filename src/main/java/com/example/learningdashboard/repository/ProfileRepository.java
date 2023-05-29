@@ -160,8 +160,7 @@ public class ProfileRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(profileResource, null, (RDFNode) null);
             }
             dataset.commit();

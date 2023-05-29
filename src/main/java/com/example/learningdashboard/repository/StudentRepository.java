@@ -157,8 +157,7 @@ public class StudentRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(studentResource, null, (RDFNode) null);
             }
             dataset.commit();

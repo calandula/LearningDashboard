@@ -157,8 +157,7 @@ public class CategoryRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(categoryResource, null, (RDFNode) null);
             }
             dataset.commit();

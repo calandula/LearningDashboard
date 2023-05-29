@@ -33,7 +33,6 @@ public class JenaConfig {
     public Dataset dataset() {
         File tdbDir = new File(TDB_DIRECTORY);
         if (tdbDir.list().length == 0) {
-            // TDB directory is empty, initialize a new dataset
             Dataset dataset = TDBFactory.createDataset(TDB_DIRECTORY);
             try {
                 dataset.begin(ReadWrite.WRITE);
@@ -46,7 +45,6 @@ public class JenaConfig {
             }
             return dataset;
         } else {
-            // TDB directory already exists, return the existing dataset
             return TDBFactory.createDataset(TDB_DIRECTORY);
         }
     }

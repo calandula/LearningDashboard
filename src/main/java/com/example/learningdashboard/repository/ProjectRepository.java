@@ -183,8 +183,7 @@ public class ProjectRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(projectResource, null, (RDFNode) null);
             }
             dataset.commit();

@@ -1,6 +1,7 @@
 # Project
 
-PS C:\Users\adria\Desktop\TFM2\SoftwareNeeded\apache-jena-fuseki-4.8.0\apache-jena-fuseki-4.8.0> ./fuseki-server --tdb1 --loc ../../../MainProject/demo/src/main/resources/data/tdb /ds
+PS C:\Users\adria\Desktop\TFM2\SoftwareNeeded\apache-jena-fuseki-4.8.0\apache-jena-fuseki-4.8.0> ./fuseki-server --tdb1
+--loc ../../../MainProject/demo/src/main/resources/data/tdb /ds
 
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -14,5 +15,3 @@ OPTIONAL { ?class qrapids:commitTaskWritten ?writtentask}
 OPTIONAL { ?class qrapids:commitTotal ?commitTotal}
 }
 LIMIT 25
-
-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjg0NzA3ODc0LCJqdGkiOiJjYjhjNWJjOTVkYTM0NWJhYWU0MzQzZjRmZTA3MmQ2NyIsInVzZXJfaWQiOjMyNTU0Nn0.ROqglgTm3EE5rfmOi1ZwR28Mi0LCU-lMH8lGiGO4lDE

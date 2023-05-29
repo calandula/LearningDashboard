@@ -149,8 +149,7 @@ public class ProductRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(productResource, null, (RDFNode) null);
             }
             dataset.commit();

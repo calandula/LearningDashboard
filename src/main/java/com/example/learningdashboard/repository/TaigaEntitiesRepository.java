@@ -1,14 +1,10 @@
-package com.example.learningdashboard.datasource;
+package com.example.learningdashboard.repository;
 
+import com.example.learningdashboard.datasource_model.Task;
+import com.example.learningdashboard.datasource_model.UserStory;
 import com.example.learningdashboard.dtos.TaigaDataSourceDto;
-import com.example.learningdashboard.repository.DataSourceRepository;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -30,27 +26,22 @@ import java.util.UUID;
 @Repository
 public class TaigaEntitiesRepository {
 
-    @Autowired
-    private DataSourceRepository dataSourceRepository;
-
-    @Autowired
-    private String prefixes;
-
-    @Autowired
-    private Dataset dataset;
-
-    @Autowired
-    private String namespace;
-
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-    private final String baseUrl = "https://api.taiga.io/api/v1";
-
     private static final String USER_STORIES_OBJECT = "user_stories";
     private static final String TASKS_OBJECT = "tasks";
-    private static final String STORY_POINTS = "story_points";
     private static final String TASK_COUNT = "task_count";
     private static final String USERSTORY_COUNT = "userstory_count";
+    private static final String USERSTORY_INDIVIDUAL_COUNT = "userstory_individual_count";
+    private static final String TASK_INDIVIDUAL_COUNT = "task_individual_count";
+    private final String baseUrl = "https://api.taiga.io/api/v1";
+    @Autowired
+    private DataSourceRepository dataSourceRepository;
+    @Autowired
+    private String prefixes;
+    @Autowired
+    private Dataset dataset;
+    @Autowired
+    private String namespace;
+    private ObjectMapper objectMapper = new ObjectMapper();
 
     public void saveUserStories(String datasourceId, List<UserStory> userStories) {
         dataset.begin(ReadWrite.WRITE);
@@ -66,7 +57,7 @@ public class TaigaEntitiesRepository {
             model.add(storyResource, model.createProperty(namespace + "userstoryIsClosed"), model.createTypedLiteral(userStory.getIsClosed()));
             Resource membership = getMembershipResourceByUsername(model, userStory.getAssignedTo());
             if (membership != null) {
-                model.add(storyResource, model.createProperty(namespace + "userstoryAssignedTo"), getMembershipResourceByUsername(model, userStory.getAssignedTo()));
+                model.add(storyResource, model.createProperty(namespace + "assignedTo"), membership);
             }
         }
 
@@ -87,7 +78,7 @@ public class TaigaEntitiesRepository {
             model.add(taskResource, model.createProperty(namespace + "taskIsClosed"), model.createTypedLiteral(task.getIsClosed()));
             Resource membership = getMembershipResourceByUsername(model, task.getAssignedTo());
             if (membership != null) {
-                model.add(taskResource, model.createProperty(namespace + "taskAssignedTo"), getMembershipResourceByUsername(model, task.getAssignedTo()));
+                model.add(taskResource, model.createProperty(namespace + "assignedTo"), membership);
             }
         }
 
@@ -108,34 +99,73 @@ public class TaigaEntitiesRepository {
     }
 
     public float computeMetric(String datasourceId, String operation, String target) {
-
         dataset.begin(ReadWrite.READ);
-        Model model = dataset.getDefaultModel();
-        Resource datasourceResource = model.createResource(namespace + datasourceId);
-        StmtIterator userStoriesIter = model.listStatements(datasourceResource, model.createProperty(namespace + "hasUserStory"), (RDFNode)null);
-        StmtIterator tasksIter = model.listStatements(datasourceResource, model.createProperty(namespace + "hasTask"), (RDFNode)null);
-        dataset.commit();
+        try {
+            Model model = dataset.getDefaultModel();
+            Resource datasourceResource = model.createResource(namespace + datasourceId);
+            StmtIterator userStoriesIter = model.listStatements(datasourceResource, model.createProperty(namespace + "hasUserStory"), (RDFNode) null);
+            StmtIterator tasksIter = model.listStatements(datasourceResource, model.createProperty(namespace + "hasTask"), (RDFNode) null);
 
-        switch(operation) {
-            case USERSTORY_COUNT -> {
-                float totalStoryPoints = 0f;
-                while (userStoriesIter.hasNext()) {
-                    Statement stmt = userStoriesIter.next();
-                    float storyPoints = stmt.getObject().asLiteral().getFloat();
-                    totalStoryPoints += storyPoints;
+            switch (operation) {
+                case USERSTORY_COUNT -> {
+                    int totalUserstories = 0;
+                    while (userStoriesIter.hasNext()) {
+                        Statement stmt = userStoriesIter.next();
+                        totalUserstories++;
+                    }
+                    return totalUserstories;
                 }
-                return totalStoryPoints;
+                case TASK_COUNT -> {
+                    int totalTasks = 0;
+                    while (tasksIter.hasNext()) {
+                        Statement stmt = tasksIter.next();
+                        totalTasks++;
+                    }
+                    return totalTasks;
+                }
+                case USERSTORY_INDIVIDUAL_COUNT -> {
+                    int totalUserstories = 0;
+                    while (userStoriesIter.hasNext()) {
+                        Statement stmt = userStoriesIter.next();
+                        Resource issueResource = stmt.getObject().asResource();
+                        if (hasAssignedTo(issueResource, target, model)) {
+                            totalUserstories++;
+                        }
+                    }
+                    return totalUserstories;
+                }
+                case TASK_INDIVIDUAL_COUNT -> {
+                    int totalTasks = 0;
+                    while (tasksIter.hasNext()) {
+                        Statement stmt = tasksIter.next();
+                        Resource commitResource = stmt.getObject().asResource();
+                        if (hasAssignedTo(commitResource, target, model)) {
+                            totalTasks++;
+                        }
+                    }
+                    return totalTasks;
+                }
+                default -> {
+                    throw new IllegalArgumentException("Unsupported operation: " + operation);
+                }
             }
-            case TASK_COUNT -> {
-                int totalTaskCount = 0;
-                while (tasksIter.hasNext()) {
-                    tasksIter.next();
-                    totalTaskCount += 1;
-                }
-                return totalTaskCount;
+        } finally {
+            dataset.end();
+        }
+    }
+
+    private boolean hasAssignedTo(Resource resource, String target, Model model) {
+        Property assignedToProperty = model.createProperty(namespace + "assignedTo");
+        StmtIterator assignedToIter = model.listStatements(resource, assignedToProperty, (RDFNode) null);
+        while (assignedToIter.hasNext()) {
+            Statement stmt = assignedToIter.next();
+            Resource assignedToResource = stmt.getObject().asResource();
+            String assignedToUsername = assignedToResource.getProperty(model.createProperty(namespace + "membershipUsername")).getString();
+            if (assignedToUsername.equals(target)) {
+                return true;
             }
         }
-        return 0;
+        return false;
     }
 
     public void retrieveData(String objectName, String dataSourceId) throws IOException {
@@ -223,38 +253,15 @@ public class TaigaEntitiesRepository {
     }
 
     public boolean supportsObject(String objectName) {
-        return objectName.equals(USER_STORIES_OBJECT) || objectName.equals(TASKS_OBJECT);
+        return objectName.equals(USER_STORIES_OBJECT)
+                || objectName.equals(TASKS_OBJECT);
     }
 
     public boolean supportsMethod(String method) {
-        return method.equals(USERSTORY_COUNT) || method.equals(TASK_COUNT);
-    }
-
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class UserStory {
-        private String id;
-        private String subject;
-        private String description;
-        private String assignedTo;
-        private Boolean isBlocked;
-        private Boolean isClosed;
-    }
-
-    @Setter
-    @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Task {
-        private String id;
-        private String subject;
-        private String assignedTo;
-        private Boolean isBlocked;
-        private Boolean isClosed;
+        return method.equals(USERSTORY_COUNT)
+                || method.equals(TASK_COUNT)
+                || method.equals(USERSTORY_INDIVIDUAL_COUNT)
+                || method.equals(TASK_INDIVIDUAL_COUNT);
     }
 }
 

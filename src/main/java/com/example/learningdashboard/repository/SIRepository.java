@@ -132,8 +132,7 @@ public class SIRepository {
                     Statement stmt = it.next();
                     dataset.getDefaultModel().remove(stmt);
                 }
-            }
-            else {
+            } else {
                 dataset.getDefaultModel().removeAll(siResource, null, (RDFNode) null);
             }
             dataset.commit();
