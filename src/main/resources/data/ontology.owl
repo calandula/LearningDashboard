@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
-<rdf:RDF xmlns="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#"
-     xml:base="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-     xmlns:xml="http://www.w3.org/XML/1998/namespace"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+<rdf:RDF
+        xml:base="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27"
+        xmlns:owl="http://www.w3.org/2002/07/owl#"
+        xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+        xmlns:xml="http://www.w3.org/XML/1998/namespace"
+        xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
     <owl:Ontology rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27"/>
     
 
@@ -232,6 +231,16 @@
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#SIItem"/>
         <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#WeightedQFItem"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#refDS -->
+
+    <owl:ObjectProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#refDS">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topObjectProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#Metric"/>
+        <rdfs:range rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#DataSource"/>
     </owl:ObjectProperty>
     
 
@@ -566,9 +575,29 @@
     
 
 
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#metricMethod -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#metricMethod">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#Metric"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#metricName -->
 
     <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#metricName">
+        <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
+        <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#Metric"/>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#metricTarget -->
+
+    <owl:DatatypeProperty rdf:about="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#metricTarget">
         <rdfs:subPropertyOf rdf:resource="http://www.w3.org/2002/07/owl#topDataProperty"/>
         <rdfs:domain rdf:resource="http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#Metric"/>
         <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>

@@ -13,17 +13,18 @@ import lombok.Setter;
 public class MetricItemDto {
 
     private String id;
-
     @NotBlank
     private String name;
-
     @NotBlank
     private String description;
-
     @NotBlank
     private String category;
-
     private float threshold;
-
+    @NotBlank
+    private String method;
+    @NotBlank
+    private String target;
+    @NotBlank
+    private String dsId;
     private float value;
 }

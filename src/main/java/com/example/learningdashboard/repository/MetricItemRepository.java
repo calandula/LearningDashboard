@@ -6,6 +6,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDFS;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -42,8 +43,24 @@ public class MetricItemRepository {
                     .add(metricResource, ResourceFactory.createProperty(namespace + "metricThreshold"),
                             ResourceFactory.createTypedLiteral(metric.getThreshold()))
                     .add(metricResource, ResourceFactory.createProperty(namespace + "metricValue"),
-                            ResourceFactory.createTypedLiteral(metric.getValue()));
+                            ResourceFactory.createTypedLiteral(metric.getValue()))
+                    .add(metricResource, ResourceFactory.createProperty(namespace + "metricMethod"),
+                            ResourceFactory.createTypedLiteral(metric.getMethod()))
+                    .add(metricResource, ResourceFactory.createProperty(namespace + "metricTarget"),
+                            ResourceFactory.createTypedLiteral(metric.getTarget()));
 
+            String datasourceClassURI = namespace + "DataSource";
+            Resource datasourceClass = ResourceFactory.createResource(datasourceClassURI);
+            Resource refDS = ResourceFactory.createResource(namespace + metric.getDsId());
+            Resource classOfRefDS = dataset.getDefaultModel().listObjectsOfProperty(refDS, RDF.type).next().asResource();
+            boolean isSubclass = dataset.getDefaultModel().contains(classOfRefDS, RDFS.subClassOf, datasourceClass);
+            if (isSubclass) {
+                dataset.getDefaultModel().add(metricResource,
+                        ResourceFactory.createProperty(namespace + "refDS"),
+                        refDS);
+            } else {
+                throw new IllegalArgumentException("The class of refDS is not a subclass of DataSource.");
+            }
 
             String categoryClassURI = namespace + "Category";
             Resource categoryClass = ResourceFactory.createResource(categoryClassURI);
@@ -77,6 +94,9 @@ public class MetricItemRepository {
                         metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
                         metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
                         metric.setCategory(JenaUtils.parseId(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI()));
+                        metric.setDsId(JenaUtils.parseId(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "refDS")).getURI()));
+                        metric.setMethod(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricMethod")).getString());
+                        metric.setTarget(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricTarget")).getString());
                         metric.setId(JenaUtils.parseId(metricResource.getURI()));
                         metrics.add(metric);
                     });
@@ -109,9 +129,17 @@ public class MetricItemRepository {
             String metricThreshold = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricThreshold"))
                     .getString();
             String metricCategory = JenaUtils.parseId(model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricCategory")).getObject().toString());
+            String metricRefDS = JenaUtils.parseId(model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "refDS")).getObject().toString());
+            String metricMethod = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricMethod"))
+                    .getString();
+            String metricTarget = model.getProperty(metricResource, ResourceFactory.createProperty(namespace + "metricTarget"))
+                    .getString();
 
             MetricItemDto metric = new MetricItemDto();
             metric.setName(metricName);
+            metric.setDsId(metricRefDS);
+            metric.setMethod(metricMethod);
+            metric.setTarget(metricTarget);
             metric.setDescription(metricDescription);
             metric.setCategory(metricCategory);
             metric.setValue(Float.parseFloat(metricValue));
@@ -147,6 +175,9 @@ public class MetricItemRepository {
                 metric.setCategory(JenaUtils.parseId(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "metricCategory")).getURI()));
                 metric.setValue(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricValue")).getString()));
                 metric.setThreshold(Float.parseFloat(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricThreshold")).getString()));
+                metric.setDsId(JenaUtils.parseId(metricResource.getPropertyResourceValue(ResourceFactory.createProperty(namespace + "refDS")).getURI()));
+                metric.setMethod(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricMethod")).getString());
+                metric.setTarget(metricResource.getProperty(ResourceFactory.createProperty(namespace + "metricTarget")).getString());
                 metric.setId(JenaUtils.parseId(metricResource.getURI()));
                 metrics.add(metric);
             }
@@ -182,7 +213,7 @@ public class MetricItemRepository {
         }
     }
 
-    public void updateValue(float newValue, String metricId) {
+    public float updateValue(float newValue, String metricId) {
         String metricURI = namespace + metricId;
         Resource metricResource = ResourceFactory.createResource(metricURI);
 
@@ -242,8 +273,8 @@ public class MetricItemRepository {
                             ResourceFactory.createTypedLiteral(siItemValue));
                 }
             }
-
             dataset.commit();
+            return newValue;
         } catch (Exception e) {
             dataset.abort();
             throw e;

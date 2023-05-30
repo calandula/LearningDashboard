@@ -4,17 +4,19 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.ReadWrite;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.tdb.TDBFactory;
+import org.apache.jena.util.FileManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
 public class JenaConfig {
 
     private static final String TDB_DIRECTORY = "src/main/resources/data/tdb";
-    private static final String ENTITIES_FILE = "data/ontology-final.owl";
-    private static final String ONTOLOGY_FILE = "data/ontology-final.owl";
+    private static final String ONTOLOGY_FILE = "data/ontology.owl";
 
     @Bean
     public String prefixes() {
@@ -30,14 +32,22 @@ public class JenaConfig {
     }
 
     @Bean
-    public Dataset dataset() {
+    public Dataset dataset() throws IOException {
         File tdbDir = new File(TDB_DIRECTORY);
         if (tdbDir.list().length == 0) {
             Dataset dataset = TDBFactory.createDataset(TDB_DIRECTORY);
             try {
                 dataset.begin(ReadWrite.WRITE);
                 Model model = dataset.getDefaultModel();
-                model.read(ONTOLOGY_FILE);
+
+                InputStream inputStream = FileManager.get().open(ONTOLOGY_FILE);
+                if (inputStream != null) {
+                    model.read(inputStream, null);
+                    inputStream.close();
+                } else {
+                    throw new IllegalArgumentException("Ontology file not found: " + ONTOLOGY_FILE);
+                }
+
                 dataset.commit();
             } catch (Exception e) {
                 dataset.abort();
@@ -48,5 +58,4 @@ public class JenaConfig {
             return TDBFactory.createDataset(TDB_DIRECTORY);
         }
     }
-
 }
