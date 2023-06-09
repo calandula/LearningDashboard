@@ -17,38 +17,74 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto category) {
-        CategoryDto savedCategory = categoryService.createCategory(category);
-        return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
+    public ResponseEntity<?> createCategory(@RequestBody CategoryDto category) {
+        try {
+            CategoryDto savedCategory = categoryService.createCategory(category);
+            return new ResponseEntity<>(savedCategory, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> getAllCategories() {
-        List<CategoryDto> categories = categoryService.getAllCategories();
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+    public ResponseEntity<?> getAllCategories() {
+        try {
+            List<CategoryDto> categories = categoryService.getAllCategories();
+            return new ResponseEntity<>(categories, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<CategoryDto> getCategoryById(@PathVariable("id") String categoryId) {
-        CategoryDto category = categoryService.getCategoryById(categoryId);
-        return new ResponseEntity<>(category, HttpStatus.OK);
+    public ResponseEntity<?> getCategoryById(@PathVariable("id") String categoryId) {
+        try {
+            CategoryDto category = categoryService.getCategoryById(categoryId);
+            if (category != null) {
+                return new ResponseEntity<>(category, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/item/{id}")
-    public ResponseEntity<CategoryDto> getCategoryByItem(@PathVariable("id") String itemId) {
-        CategoryDto categories = categoryService.getCategoryByItem(itemId);
-        return new ResponseEntity<>(categories, HttpStatus.OK);
+    public ResponseEntity<?> getCategoryByItem(@PathVariable("id") String itemId) {
+        try {
+            CategoryDto category = categoryService.getCategoryByItem(itemId);
+            if (category != null) {
+                return new ResponseEntity<>(category, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CategoryDto> updateCategory(@PathVariable("id") String categoryId, @RequestBody CategoryDto category) {
-        CategoryDto updatedCategory = categoryService.updateCategory(categoryId, category);
-        return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
+    public ResponseEntity<?> updateCategory(@PathVariable("id") String categoryId, @RequestBody CategoryDto category) {
+        try {
+            CategoryDto updatedCategory = categoryService.updateCategory(categoryId, category);
+            if (updatedCategory != null) {
+                return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Category not found", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Error: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteCategory(@PathVariable("id") String categoryId) {
-        categoryService.deleteCategory(categoryId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        try {
+            categoryService.deleteCategory(categoryId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

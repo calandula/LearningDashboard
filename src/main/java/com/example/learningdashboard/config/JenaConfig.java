@@ -34,7 +34,13 @@ public class JenaConfig {
     @Bean
     public Dataset dataset() throws IOException {
         File tdbDir = new File(TDB_DIRECTORY);
-        if (tdbDir.list().length == 0) {
+        if (!tdbDir.exists() || tdbDir.list().length == 0) {
+            if (!tdbDir.exists()) {
+                boolean created = tdbDir.mkdirs();
+                if (!created) {
+                    throw new IOException("Failed to create TDB directory: " + TDB_DIRECTORY);
+                }
+            }
             Dataset dataset = TDBFactory.createDataset(TDB_DIRECTORY);
             try {
                 dataset.begin(ReadWrite.WRITE);
