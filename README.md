@@ -44,3 +44,8 @@ Having apache Jena Fuseki already in your path, execute:
 
 fuseki-server --tdb1 --loc <path_to_tdb_in_src_main_resources_data> /ds
 
+## Interact with the API
+
+Go to Postman and import the collection TFM.postman_collection.json placed in the root of the project.
+
+Create entities and play with the REST API!

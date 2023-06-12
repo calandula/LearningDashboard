@@ -1,0 +1,956 @@
+{
+	"info": {
+		"_postman_id": "e5309d82-39fd-47d0-930b-125368bc9e0a",
+		"name": "TFM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "4327537"
+	},
+	"item": [
+		{
+			"name": "CategoryItem",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Category",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/categoryitems",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categoryitems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/categoryitems/faf1bf5f-6ff4-4290-900c-9984a54ae9dc",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categoryitems",
+								"faf1bf5f-6ff4-4290-900c-9984a54ae9dc"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Item",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/categories",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/categories/4a3e6ae6-45cf-4500-8837-6ecb715abba0",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"categories",
+								"4a3e6ae6-45cf-4500-8837-6ecb715abba0"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DataSource",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Project",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/datasources",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/datasources/920d5097-7594-4784-a6ce-4af58fb0b563",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"datasources",
+								"920d5097-7594-4784-a6ce-4af58fb0b563"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Iteration",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"high\",\r\n    \"subject\": \"#FFFFFF\",\r\n    \"from\": 2.0,\r\n    \"to\": 1.0,\r\n    \"associatedProjects\": [1, 2, 3]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/iterations",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"iterations"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/iterations/7219a286-1d04-4a8d-a1f1-c59a13dfb1c5",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"iterations",
+								"7219a286-1d04-4a8d-a1f1-c59a13dfb1c5"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Metric",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/metrics",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"metrics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By QFItem",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/metrics",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"metrics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"id\": \"aa013e85-06e6-4bcd-9607-f05dbcb4f7c0\",\r\n        \"name\": \"albertcommits\",\r\n        \"description\": \"albert commits\",\r\n        \"category\": \"http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#85a59d23-f46a-4b16-a05c-f1f8482bbe2f\",\r\n        \"threshold\": 1.0,\r\n        \"weight\": 0.77,\r\n        \"value\": 0.77\r\n    },\r\n    {\r\n        \"id\": \"2a594006-d88c-4fdf-9798-43e5a18e9f3c\",\r\n        \"name\": \"xeniacommits\",\r\n        \"description\": \"xenia commits\",\r\n        \"category\": \"http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#85a59d23-f46a-4b16-a05c-f1f8482bbe2f\",\r\n        \"threshold\": 1.0,\r\n        \"weight\": 0.88,\r\n        \"value\": 0.88\r\n    },\r\n    {\r\n        \"id\": \"fef86fb4-3d8f-49f9-bbb1-7f7708203591\",\r\n        \"name\": \"lauracommits\",\r\n        \"description\": \"laura commits\",\r\n        \"category\": \"http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#85a59d23-f46a-4b16-a05c-f1f8482bbe2f\",\r\n        \"threshold\": 1.0,\r\n        \"weight\": 0.65,\r\n        \"value\": 0.65\r\n    },\r\n    {\r\n        \"id\": \"ac5778d5-fea7-4024-bfc9-d52296dae5e2\",\r\n        \"name\": \"joelcommits\",\r\n        \"description\": \"joel commits\",\r\n        \"category\": \"http://www.semanticweb.org/adria/ontologies/2023/3/untitled-ontology-27#85a59d23-f46a-4b16-a05c-f1f8482bbe2f\",\r\n        \"threshold\": 1.0,\r\n        \"weight\": 0.55,\r\n        \"value\": 0.55\r\n    }"
+						},
+						"url": {
+							"raw": "{{url}}/metrics/ac5778d5-fea7-4024-bfc9-d52296dae5e2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"metrics",
+								"ac5778d5-fea7-4024-bfc9-d52296dae5e2"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Product",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/products",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/products/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"products",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/profiles",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"profiles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/profiles/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"profiles",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Project",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/projects",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"projects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/projects/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"projects",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "QF",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/qfs",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"qfs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/qfs/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"qfs",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SI",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/sis",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"sis"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/sis/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"sis",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "QFItem",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By SIItem",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/qfitems/siitem/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"qfitems",
+								"siitem",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Project",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/qfitems/project/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"qfitems",
+								"project",
+								"123"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sourceQF\": \"c894595d-b608-4d03-b053-3878420be1e3\",\r\n    \"threshold\": 2.0,\r\n    \"category\": \"1105b80a-7264-42aa-b58f-39cdbe91db44\",\r\n    \"weight\": 0.35,\r\n    \"metrics\": [\"b159ddd9-bfbc-432d-ba9b-b88f75903385\", \"ecf6b55a-7397-4de2-aad1-e6e44c6ec11d\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/qfitems",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"qfitems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/qfitems/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"qfitems",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SIItem",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By Project",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"sourceSI\": \"38cf0c75-f6ea-4115-9390-850a2d38402c\",\r\n  \"value\": 1.23,\r\n  \"threshold\": 0.8,\r\n  \"category\": \"categoryName\",\r\n  \"qfItemsWeight\": [\r\n    {\r\n      \"first\": \"492da112-d6cd-4588-878c-e8d64ffd32c3\",\r\n      \"second\": 0.6\r\n    },\r\n    {\r\n      \"first\": \"c0bb8d9c-b29d-4323-95c4-a2451c4d270b\",\r\n      \"second\": 0.4\r\n    }\r\n  ],\r\n  \"qfItems\": [\"492da112-d6cd-4588-878c-e8d64ffd32c3\", \"c0bb8d9c-b29d-4323-95c4-a2451c4d270b\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/siitems",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"siitems"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/siitems/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"siitems",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Student",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"xenia\",\r\n    \"memberships\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/students",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"students"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/students/123",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"students",
+								"123"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "GET",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "GET By ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				},
+				{
+					"name": "POST",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"Albert\",\r\n    \"email\": \"albert@gmail.com\",\r\n    \"securityQuestion\": \"What is the last thing you've eaten?\",\r\n    \"answer\": \"chicken\",\r\n    \"password\": \"albert123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/users",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/users/362c47a9-ac19-4b29-9b58-41246aef1888",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"users",
+								"362c47a9-ac19-4b29-9b58-41246aef1888"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "QRConnect",
+			"item": [
+				{
+					"name": "QRConnect",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "QREval",
+			"item": [
+				{
+					"name": "QREval",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
